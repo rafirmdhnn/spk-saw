@@ -10,7 +10,7 @@
             </div>
             <div class="wrapper-content">
                 <p>Halaman setelah ini adalah daftar gejala kecemasan yang umum. Harap hati-hati dalam membaca setiap item. Tunjukkan berapa banyak Anda telah terganggu oleh gejala itu selama sebulan terakhir, termasuk hari ini, dengan memilih pilihan ganda yang tersedia</p>
-                <a class="btn btn-primary btn-custom" href="">Mulai</a>
+                <a class="btn btn-primary btn-custom" href="{{route('question')}}">Mulai</a>
             </div>
         </div>
     </div>

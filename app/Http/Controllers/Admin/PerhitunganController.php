@@ -16,16 +16,19 @@ class PerhitunganController extends Controller
 
         $alternatif_nilais = AlternatifNilai::select([
             'alternatifs.id as kode_alternatif',
+            'users.name as nama',
+            'users.umur',
             'alternatifs.alternatif_nama as nama_alternatif',
             'alternatifs.alternatif_image as image_alternatif',
             'alternatif_nilais.kriteria_id as kode_kriteria',
             'alternatif_nilais.nilai_kriteria_id as kode_nilai_kriteria'
         ])
-        ->join('alternatifs', 'alternatifs.id','=','alternatif_nilais.alternatif_id')
+        ->join('users', 'users.id','=','alternatif_nilais.user_id')
         ->join('kriterias', 'kriterias.id','=','alternatif_nilais.kriteria_id')
+        ->join('alternatifs', 'alternatifs.id','=','kriterias.alternatif_id')
         ->orderBy('alternatifs.id','ASC')
         ->orderBy('alternatif_nilais.kriteria_id','ASC')
-        ->groupBy('alternatif_nilais.alternatif_id')
+        ->groupBy('alternatif_nilais.user_id')
         ->get();
 
 

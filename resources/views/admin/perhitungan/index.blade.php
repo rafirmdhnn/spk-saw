@@ -29,8 +29,8 @@
                 <!--begin: Datatable-->
                 <table class="table table-separate table-head-custom table-checkable" id="lks_datatable">
                     <thead>
-                        <th>Kode Alternatif</th>
-                        <th>Nama Alternatif</th>
+                        <th>Nama Lengkap</th>
+                        <th>Umur</th>
                         @foreach ($kriterias as $kriteria)
                             <th>{{$kriteria->kriteria_nama}}</th>
                         @endforeach
@@ -39,10 +39,10 @@
                         @foreach ($alternatif_nilais as $alternatif_nilai)
                         <tr>
                             <td>
-                                <?=$alternatif_nilai->kode_alternatif?>
+                                <?=$alternatif_nilai->nama?>
                             </td>
                             <td>
-                                <?=$alternatif_nilai->nama_alternatif?>
+                                <?=$alternatif_nilai->umur?>
                             </td>
                             <?php 
                                 $queries = App\Models\AlternatifNilai::
@@ -66,8 +66,8 @@
                 <!--begin: Datatable-->
                 <table class="table table-separate table-head-custom table-checkable" id="lks_datatable">
                     <thead>
-                        <th>Kode Alternatif</th>
-                        <th>Nama Alternatif</th>
+                        <th>Nama Lengkap</th>
+                        <th>Umur</th>
                         @foreach ($kriterias as $kriteria)
                             <th>{{$kriteria->kriteria_nama}}</th>
                         @endforeach
@@ -76,10 +76,10 @@
                         @foreach ($alternatif_nilais as $alternatif_nilai)
                         <tr>
                             <td>
-                                <?=$alternatif_nilai->kode_alternatif?>
+                                <?=$alternatif_nilai->nama?>
                             </td>
                             <td>
-                                <?=$alternatif_nilai->nama_alternatif?>
+                                <?=$alternatif_nilai->umur?>
                             </td>
                             <?php 
                                 $queries = App\Models\AlternatifNilai::

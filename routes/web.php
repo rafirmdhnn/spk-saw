@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', 'BaseController@index')->name('index');
-
+Route::get('/question', 'BaseController@question')->name('question');
+Route::post('/question/store', 'BaseController@questionStore')->name('question.store');
+Route::get('/daftar/{nisn}', 'BaseController@daftar')->name('daftar');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');

@@ -41,7 +41,6 @@ class AlternatifController extends Controller
      */
     public function index()
     {
-        if($this->user_role == 1) {
             // Jika Request dengan Menggunakan Data Ajax atau Datatables
             if(request()->ajax()) {
                 // Fungsi ini menampilkan data alternatif berdasarkan waktu terbaru
@@ -73,23 +72,7 @@ class AlternatifController extends Controller
             // untuk memanggil file index alternatif yang ada di dalam folder resources/view/admin/alternatif/index
 
             return view('admin.alternatif.index');
-        } else {
-                // Jika Request dengan Menggunakan Data Ajax atau Datatables
-                if(request()->ajax()) {
-                    // Fungsi ini menampilkan data alternatif berdasarkan waktu terbaru
-                    $models = Alternatif::orderBy('created_at', 'ASC')->get();
-                
-                    // ini berfungsi untuk menampilkan data alternatif ke dalam datatables melalui ajax jquery
-                    return datatables()->of($models)
-                    ->addIndexColumn()
-                    ->rawColumns(['action'])    
-                    ->make(true);
-                }
-    
-                // untuk memanggil file index alternatif yang ada di dalam folder resources/view/admin/alternatif/index
-    
-                return view('admin.alternatif.indexUser');
-        }
+     
     }
 
     /**

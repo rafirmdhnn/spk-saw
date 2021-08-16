@@ -31,6 +31,13 @@
             margin-top: 90px;
         }
 
+        .wrapper-footer {
+            height: 50px;
+            background: #198278;
+            border-radius: 200px 200px 0px 0px;
+            line-height: 52px; 
+        }
+
         .btn-custom {
             background: #198278;
             color: white;
@@ -38,6 +45,16 @@
             padding: 8px 57px;
             border-radius: 22px;
             border: 1px solid #198278;
+        }
+        .custom-control{
+            display: none;
+        }
+        .custom-control-label::before {
+            display: none;
+        }
+
+        .custom-control::after {
+            display: none;
         }
     </style>
 </head>
@@ -50,13 +67,17 @@
         </div>
     </div>
     @yield('content')
-    <div class="container mt-5">
-        <div class="col-md-12">
-            <div class="text-center text-uppercase">
-                <p>2020 Beck Anxiet Inventory</p>
+    {{-- <center>
+        <div class="fixed-bottom">
+            <div class="container mt-5">
+                <div class="col-md-4">
+                    <div class="wrapper-footer text-center text-uppercase text-white">
+                        <p>2020 Beck Anxiet Inventory</p>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </center> --}}
 </body>
 </html>
 <!-- Optional JavaScript -->

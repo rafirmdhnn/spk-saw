@@ -36,7 +36,8 @@
                     <thead>
                     <tr>
                         <th>No.</th>
-                        <th>Nama Alternatif</th>
+                        <th>Nama</th>
+                        <th>Umur</th>
                         @foreach ($kriterias as $kriteria)
                         <th>
                             {{$kriteria->kriteria_nama}}
@@ -53,12 +54,15 @@
                         <tr>
                             <td>{{$i++}}</td>
                             <td>
-                                <?=$value->nama_alternatif?>
+                                <?=$value->nama?>
+                            </td>
+                            <td>
+                                <?=$value->umur?>
                             </td>
                             <?php 
                                 $queries = App\Models\AlternatifNilai::
                                 leftJoin('kriteria_nilais', 'kriteria_nilais.id','=','alternatif_nilais.nilai_kriteria_id')
-                                ->where('alternatif_id', $value->kode_alternatif)
+                                // ->where('alternatif_id', $value->kode_alternatif)
                                 ->orderBy('kriteria_nilais.kriteria_id','ASC')
                                 ->get();
                             ?>
