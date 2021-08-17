@@ -68,12 +68,10 @@
     </div>
     @yield('content')
     <center>
-        <div class="fixed-bottom">
-            <div class="container mt-5">
-                <div class="col-md-4">
-                    <div class="wrapper-footer text-center text-uppercase text-white">
-                        <p>2020 Beck Anxiet Inventory</p>
-                    </div>
+        <div class="container mt-5">
+            <div class="col-md-4">
+                <div class="wrapper-footer text-center text-uppercase text-white">
+                    <p>2020 Beck Anxiet Inventory</p>
                 </div>
             </div>
         </div>
