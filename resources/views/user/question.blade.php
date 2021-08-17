@@ -35,6 +35,7 @@
                         <label for="inputAddress" class="font-weight-bold">{{$i++}}. {{$qs->kriteria_nama}}</label>
                             @foreach ($qs->kriteria_nilai as $item)
                                 <div class="form-group">
+                                    <input type="hidden" name="nilai[]" value="{{$item->kn_nilai}}">
                                     <input type="radio" id="customRadio-{{$item->kriteria_id}}" name="answers[{{$item->kriteria_id}}]" value="{{old('answers'.$item->kriteria_id, $item->id)}}">
                                     <label class="custom-control-label" for="customRadio-{{$item->kriteria_id}}">{{$item->kn_keterangan}}</label>
                                 </div>
@@ -51,7 +52,7 @@
                             </ul>
                         </div>
                     @endif
-                    <button type="submit" class="btn btn-primary">Sign in</button>
+                    <button type="submit" class="btn btn-primary">Selesai</button>
                 </form>
             </div>
         </div>

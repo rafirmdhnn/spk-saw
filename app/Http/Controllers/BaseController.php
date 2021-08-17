@@ -37,63 +37,29 @@ class BaseController extends Controller
 
         $nilai = $request->all();
 
-        
+        $total = 0;
         for ($i = 0; $i < count($request->questions); $i++) {
-            // $kriteria = KriteriaNilai::where('kriteria_id', $request->answers[$i+1])->get();
-   
-         
+            $total += $request->nilai[$i];
             $answers[] = [
                 'user_id' => $user->id,
                 'kriteria_id' => $request->questions[$i],
                 'nilai_kriteria_id' => $request->answers[$i+1]
             ];
         }
-
+    
         AlternatifNilai::insert($answers);
 
-        return redirect()->route('question')
-        ->with('success','Nilai updated successfully');
+        return redirect()->route('result', $total)
+        ->with('success','Result successfully');
     }
 
-    public function daftar($nisn = null)
-   {
-    //  $this->validate($request, [
-    //     'nisn' => 'required',
-    //   ]);
 
-    //   $countdown = Countdown::find(1);
+    public function result($score = null) {
+        
+        return view('user.result', compact('score'));
+    }
 
-    //   if (now()->isBefore($countdown->pendaftaran)) {
-         $response = Http::withBasicAuth('puspresnas', 'Pu5pReSn4s123!@#')->get('https://pelayanan.data.kemdikbud.go.id/api/puspresnas/siswa?id='.$nisn.'');
-         $data = $response->json();
-
-         dd($data);
-        //  if ($data) {
-        //     $detail = Jenjang::find($request->jenjang);
-        //     $datas = $data;
-        //     if ($datas['tingkat_pendidikan'] < $detail->kelas_minimal) {
-        //        return redirect()->route('register')->with('kelas',$datas['tingkat_pendidikan']);
-        //     } else {
-        //        $myString = $detail->jenjang;
-        //        $myArray = explode(',', $myString);
-        //        if (in_array($datas['bentuk_pendidikan'], $myArray)) {
-        //           $sekolah = Http::withBasicAuth('puspresnas', 'Pu5pReSn4s123!@#')->post('https://pelayanan.data.kemdikbud.go.id/api/puspresnas/sekolah?id='.$datas['npsn'].'');
-        //           $data_sekolah = $sekolah->json();
-        //           $bidang = Bidang::where('status',1)->get();
-        //           return view('frontend.daftar', compact('datas','detail','data_sekolah','bidang'));
-        //        } else {
-        //            return redirect()->route('register')->with('salah_jenjang',$datas['bentuk_pendidikan']);
-        //        }
-        //        // return $detail->jenjang[0];
-        //     } 
-        //  } else {
-        //     return redirect()->route('register')->with('nisn_not_found','Maaf');
-        //  }
-    //   } else {
-    //      $tutup = Carbon::parse($countdown->pendaftaran_pengunggahan)->format('d M Y h:i:s');
-    //      return redirect('login')->with('waktu_habis',$tutup);
-    //   }
-   }
+    
 
 
 }
