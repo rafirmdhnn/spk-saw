@@ -20,6 +20,9 @@
                     </p>  
                     <p class="text-dark">Anda sering dan mudah sekali cemas. Perhatikan pola atau waktu ketika Anda cenderung merasakan gejalanya. Kecemasan yang terus-menerus dan tinggi bukanlah tanda kelemahan pribadi atau kegagalan. Namun, itu adalah sesuatu yang perlu ditangani secara proaktif atau mungkin ada dampak signifikan terhadap Anda secara mental dan fisik. Anda mungkin bisa berkonsultasi dengan spesialis jika gejala terus berlanjut.</p>
                 @endif
+                <center>
+                    <a class="btn btn-primary btn-custom" href="{{route('index')}}">Kembali</a>
+                </center>
             </div>
         </div>
     </div>

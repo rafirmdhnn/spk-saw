@@ -43,6 +43,7 @@ class AlternatifNilaiController extends Controller
         // query eloquend database untuk menampilkan data hasil analisa
         $rows = AlternatifNilai::select([
                     'alternatifs.id as kode_alternatif',
+                    'users.id as id',
                     'users.name as nama',
                     'users.umur',
                     'alternatifs.alternatif_nama as nama_alternatif',

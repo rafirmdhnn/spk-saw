@@ -62,7 +62,7 @@
                             <?php 
                                 $queries = App\Models\AlternatifNilai::
                                 leftJoin('kriteria_nilais', 'kriteria_nilais.id','=','alternatif_nilais.nilai_kriteria_id')
-                                // ->where('alternatif_id', $value->kode_alternatif)
+                                ->where('user_id', $value->id)
                                 ->orderBy('kriteria_nilais.kriteria_id','ASC')
                                 ->get();
                             ?>
