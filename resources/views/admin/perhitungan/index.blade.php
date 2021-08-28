@@ -62,7 +62,7 @@
                 </table>
                 <!--end: Datatable-->
             </div>
-            <div class="card-body">
+            {{-- <div class="card-body">
                 <!--begin: Datatable-->
                 <table class="table table-separate table-head-custom table-checkable" id="lks_datatable">
                     <thead>
@@ -98,11 +98,11 @@
                     </tbody>
                 </table>
                 <!--end: Datatable-->
-            </div>
+            </div> --}}
         </div>
         <!--end::Card-->
          <!--begin::Card-->
-         <div class="card card-custom mt-5">
+         {{-- <div class="card card-custom mt-5">
             <div class="card-header flex-wrap pt-6 pb-0">
                 <div class="card-title">
                     <h3 class="card-label">Normalisasi</h3>
@@ -143,18 +143,20 @@
                                         ?>
                                         <td>{{round($normalisasi, 2)}}</td> 
                                 @endforeach
-                                <?php $rangking[] = [
-                                    'kode'  => $data->id,
-                                    'photo'  => $data->alternatif_image,
-                                    'nama'  => $data->alternatif_nama,
-                                    'harga'  => $data->alternatif_harga,
-                                    'ukuran_layar'  => $data->alternatif_ukuran_layar,
-                                    'ram'  => $data->alternatif_ram,
-                                    'baterai'  => $data->alternatif_baterai,
-                                    'memory'  => $data->alternatif_storage,
-                                    'kamera'  => $data->alternatif_kamera,
-                                    'total' => $total
-                                ]; ?>
+                                <?php 
+                                // $rangking[] = [
+                                //     'kode'  => $data->id,
+                                //     'photo'  => $data->alternatif_image,
+                                //     'nama'  => $data->alternatif_nama,
+                                //     'harga'  => $data->alternatif_harga,
+                                //     'ukuran_layar'  => $data->alternatif_ukuran_layar,
+                                //     'ram'  => $data->alternatif_ram,
+                                //     'baterai'  => $data->alternatif_baterai,
+                                //     'memory'  => $data->alternatif_storage,
+                                //     'kamera'  => $data->alternatif_kamera,
+                                //     'total' => $total
+                                // ];
+                                 ?>
                             </tr>
                         @endforeach
                     @else
@@ -165,10 +167,10 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+        </div> --}}
         <!--end::Card-->
            <!--begin::Card-->
-           <div class="card card-custom mt-5">
+           {{-- <div class="card card-custom mt-5">
             <div class="card-header flex-wrap pt-6 pb-0">
                 <div class="card-title">
                     <h3 class="card-label">Perhitungan</h3>
@@ -216,7 +218,7 @@
                 </table>
                 <!--end: Datatable-->
             </div>
-        </div>
+        </div> --}}
         <!--end::Card-->
     </div>
     <!--end::Container-->

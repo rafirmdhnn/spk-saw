@@ -36,7 +36,7 @@
                             @foreach ($qs->kriteria_nilai as $item)
                                 <div class="form-group">
                                     <input type="hidden" name="nilai[]" value="{{$item->kn_nilai}}">
-                                    <input type="radio" id="customRadio-{{$item->kriteria_id}}" name="answers[{{$item->kriteria_id}}]" value="{{old('answers'.$item->kriteria_id, $item->id)}}">
+                                    <input type="radio" required id="customRadio-{{$item->kriteria_id}}" name="answers[{{$item->kriteria_id}}]" value="{{old('answers'.$item->kriteria_id, $item->id)}}">
                                     <label class="custom-control-label" for="customRadio-{{$item->kriteria_id}}">{{$item->kn_keterangan}}</label>
                                 </div>
                             @endforeach

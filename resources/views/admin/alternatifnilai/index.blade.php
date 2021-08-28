@@ -31,6 +31,7 @@
                         {{Session::get('success')}}
                     </div>
                 @endif
+                <div style="overflow-x: scroll">
                 <!--begin: Datatable-->
                 <table class="table table-separate table-head-custom table-checkable" id="lks_datatable">
                     <thead>
@@ -71,20 +72,12 @@
                                         {{$dt->kn_keterangan}}
                                     </td>
                                 @endforeach
-                            {{-- @if(Auth::user()->is_role == 1)
-                            <td>
-                               <div class="d-flex">
-                                    <div class="mr-1">
-                                        <a href={{route('alternatif-nilai.edit', $value->kode_alternatif)}} class="btn btn-sm btn-primary"> <i class="fa fa-pencil-alt"></i> Ubah</a>
-                                    </div>
-                                <div>
-                            </td>
-                            @endif --}}
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
                 <!--end: Datatable-->
+                </div>
             </div>
         </div>
         <!--end::Card-->
