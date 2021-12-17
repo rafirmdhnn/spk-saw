@@ -122,24 +122,32 @@ class PerhitunganController extends Controller
 
         #melakukan normalisasi pada matrix yg terbentuk sebelumnya
         foreach ($matrix1 as $mx_1) {  
-            $matrix_n1 = number_format($mx_1/$max_a1, 2, '.', ',');
-            $saw_a1[] = number_format($matrix_n1*$bobot_a1, 2, '.', ',');
-            $arr_n1[] = $matrix_n1; 
+            if($max_a1 > 0){
+                $matrix_n1 = number_format($mx_1/$max_a1, 2, '.', ',');
+                $saw_a1[] = number_format($matrix_n1*$bobot_a1, 2, '.', ',');
+                $arr_n1[] = $matrix_n1; 
+            }
         }
         foreach ($matrix2 as $mx_2) {  
-            $matrix_n2 = number_format($mx_2/$max_a2, 2, '.', ',');
-            $saw_a2[] = number_format($matrix_n2*$bobot_a2, 2, '.', ',');
-            $arr_n2[] = $matrix_n2; 
+            if($max_a2 > 0){
+                $matrix_n2 = number_format($mx_2/$max_a2, 2, '.', ',');
+                $saw_a2[] = number_format($matrix_n2*$bobot_a2, 2, '.', ',');
+                $arr_n2[] = $matrix_n2; 
+            }
         }
-        foreach ($matrix3 as $mx_3) {  
-            $matrix_n3 = number_format($mx_3/$max_a3, 2, '.', ',');
-            $saw_a3[] = number_format($matrix_n3*$bobot_a3, 2, '.', ',');
-            $arr_n3[] = $matrix_n3; 
+        foreach ($matrix3 as $mx_3) { 
+            if($max_a3 > 0){
+                $matrix_n3 = number_format($mx_3/$max_a3, 2, '.', ',');
+                $saw_a3[] = number_format($matrix_n3*$bobot_a3, 2, '.', ',');
+                $arr_n3[] = $matrix_n3; 
+            }
         }
         foreach ($matrix4 as $mx_4) {  
-            $matrix_n4 = number_format($mx_4/$max_a4, 2, '.', ',');
-            $saw_a4[] = number_format($matrix_n4*$bobot_a4, 2, '.', ',');
-            $arr_n4[] = $matrix_n4; 
+            if($max_a4 > 0){
+                $matrix_n4 = number_format($mx_4/$max_a4, 2, '.', ',');
+                $saw_a4[] = number_format($matrix_n4*$bobot_a4, 2, '.', ',');
+                $arr_n4[] = $matrix_n4; 
+            }
         }
 
         #menjumlahkan perhitungan preferensi (V) dari tiap Aspek
@@ -155,24 +163,10 @@ class PerhitunganController extends Controller
             "Neurophysiology" => $sum_saw2,
             "Autonomic" => $sum_saw3,
             "Panic Related" => $sum_saw4
-            // array('saw' => $sum_saw1, 'aspek' => "Subjective"),
-            // array('saw' => $sum_saw2, 'aspek' => "Neurophysiology"),
-            // array('saw' => $sum_saw3, 'aspek' => "Autonomic"),
-            // array('saw' => $sum_saw4, 'aspek' => "Panic Related")
          );
          
         $best_saw = max($saw_total);
         $detail_saw = array_keys($saw_total, $best_saw);
-
-        // if ($best_saw = 'a1'){
-        //     $detail_saw = "Subjective";
-        // }elseif($best_saw = 'a2'){
-        //     $detail_saw = "Neurophysiology";
-        // }elseif($best_saw = 'a3'){
-        //     $detail_saw = "Autonomic";
-        // }elseif($best_saw = 'a4'){
-        //     $detail_saw = "Panic Related";
-        // }
 
         $params = array(
             "matrix1" => $matrix1,

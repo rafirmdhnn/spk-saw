@@ -34,7 +34,7 @@
                   <h6 class="mb-0">Hasil BAI</h6>
                 </div>
                 <div class="col-sm-9 text-secondary">
-                  {{ $saw['total_BAI']." -- ".$saw['detail_BAI'] }}
+                  {{ $saw['total_BAI'] }} -- <span class="badge badge-primary">{{ $saw['detail_BAI'] }}</span>
                 </div>
               </div>
               <hr>
@@ -43,12 +43,10 @@
                   <h6 class="mb-0">Hasil SAW</h6>
                 </div>
                 <div class="col-sm-9 text-secondary">
-                    {{ $saw['best_saw'] }} -- 
-                    @if($saw['detail_saw'] > 1)
-                        {{ implode( " dan ", $saw['detail_saw']) }}
-                    @else
-                        {{ implode( "", $saw['detail_saw']) }}
-                    @endif
+                    {{ $saw['best_saw'] }} --  
+                    @foreach ($saw['detail_saw'] as $ds)
+                        <span class="badge badge-primary">{{ $ds }}</span>
+                    @endforeach
                 </div>
               </div>
               <hr>

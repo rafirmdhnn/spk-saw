@@ -26,7 +26,7 @@ class AlterTableAlternatifNilaisForeignKey extends Migration
     public function down()
     {
         Schema::table('alternatif_nilais', function (Blueprint $table){
-            $table->dropForeign('alternatif_nilais_user_id_foreign');
+            $table->dropForeign('alternatif_nilais_nilai_kriteria_id_foreign');
         });
     }
 }
