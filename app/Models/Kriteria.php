@@ -19,4 +19,8 @@ class Kriteria extends Model
     public function kriteria_nilai() {
         return $this->hasMany('\App\Models\KriteriaNilai','kriteria_id','id');
     }
+
+    public function alternatif_nilai() {
+        return $this->hasOne('\App\Models\AlternatifNilai');
+    }
 }
