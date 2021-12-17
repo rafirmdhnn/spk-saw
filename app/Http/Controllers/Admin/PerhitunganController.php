@@ -151,13 +151,18 @@ class PerhitunganController extends Controller
         #menentukan hasil saw terbaik
 
         $saw_total = array(
-            array('saw' => $sum_saw1, 'aspek' => "Subjective"),
-            array('saw' => $sum_saw2, 'aspek' => "Neurophysiology"),
-            array('saw' => $sum_saw3, 'aspek' => "Autonomic"),
-            array('saw' => $sum_saw4, 'aspek' => "Panic Related")
+            "Subjective" => $sum_saw1,
+            "Neurophysiology" => $sum_saw2,
+            "Autonomic" => $sum_saw3,
+            "Panic Related" => $sum_saw4
+            // array('saw' => $sum_saw1, 'aspek' => "Subjective"),
+            // array('saw' => $sum_saw2, 'aspek' => "Neurophysiology"),
+            // array('saw' => $sum_saw3, 'aspek' => "Autonomic"),
+            // array('saw' => $sum_saw4, 'aspek' => "Panic Related")
          );
          
-        $best_saw = max(array_column($saw_total, 'saw'));
+        $best_saw = max($saw_total);
+        $detail_saw = array_keys($saw_total, $best_saw);
 
         // if ($best_saw = 'a1'){
         //     $detail_saw = "Subjective";
@@ -185,7 +190,7 @@ class PerhitunganController extends Controller
             "detail_BAI" => $detail_BAI,
             "total_BAI" => $total_BAI,
             "best_saw" => $best_saw,
-            // "detail_saw" => $detail_saw,
+            "detail_saw" => $detail_saw,
             "saw_total" => $saw_total
         ); 
 

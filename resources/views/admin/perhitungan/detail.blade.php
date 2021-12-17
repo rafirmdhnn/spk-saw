@@ -43,7 +43,12 @@
                   <h6 class="mb-0">Hasil SAW</h6>
                 </div>
                 <div class="col-sm-9 text-secondary">
-                    {{ $saw['best_saw']}}
+                    {{ $saw['best_saw'] }} -- 
+                    @if($saw['detail_saw'] > 1)
+                        {{ implode( " dan ", $saw['detail_saw']) }}
+                    @else
+                        {{ implode( "", $saw['detail_saw']) }}
+                    @endif
                 </div>
               </div>
               <hr>
