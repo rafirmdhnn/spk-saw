@@ -40,6 +40,7 @@ class BaseController extends Controller
         $total = 0;
         for ($i = 0; $i < count($request->questions); $i++) {
             $total += $request->nilai[$i];
+            $id = $user->id;
             $answers[] = [
                 'user_id' => $user->id,
                 'kriteria_id' => $request->questions[$i],
@@ -49,17 +50,36 @@ class BaseController extends Controller
     
         AlternatifNilai::insert($answers);
 
-        return redirect()->route('result', $total)
+        return redirect()->route('result', $id)
         ->with('success','Result successfully');
     }
 
 
-    public function result($score = null) {
+    public function result($id) {
+        $user_id = $id;
         
-        return view('user.result', compact('score'));
+        $score = AlternatifNilai::with(['user','kriteriaNilai'])->where('user_id',$user_id)->get();
+        return view('user.result', ['score' => $score, 'user_id' => $user_id]);
     }
 
-    
+    public function detail($id){
+        $user = $id;
 
-
+        $an = AlternatifNilai::with(['user','kriteriaNilai','kriteria'])->where('user_id',$user)->get();
+        // $alternatif1 = AlternatifNilai::with(['user','kriteriaNilai','kriteria'])->where('user_id',$user)
+        // ->whereHas('kriteria', function ($query){
+        //     $query->where('alternatif_id','1');
+        // })->get();
+        // $alternatif2 = AlternatifNilai::with(['user','kriteriaNilai','kriteria'])->where('user_id',$user)
+        // ->whereHas('kriteria', function ($query){
+        //     $query->where('alternatif_id','2');
+        // })->get();
+        // $param = array(
+        //     "an" => $an,
+        //     "alternatif1" => $alternatif1,
+        //     "alternatif2" => $alternatif2
+        // );
+        
+    	 return view('user.saw', ['an' => $an]);
+    }
 }

@@ -16,7 +16,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', 'BaseController@index')->name('index');
 Route::get('/question', 'BaseController@question')->name('question');
 Route::post('/question/store', 'BaseController@questionStore')->name('question.store');
-Route::get('/result/{score}', 'BaseController@result')->name('result');
+Route::get('/result/{id}', 'BaseController@result')->name('result');
+Route::get('/detail/{user_id}', 'BaseController@detail')->name('detail');
 
 Auth::routes();
 
@@ -28,7 +29,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth']], function(){
     Route::resource('kriteria-nilai', 'Admin\KriteriaNilaiController');
     Route::resource('alternatif', 'Admin\AlternatifController');
     Route::resource('alternatif-nilai', 'Admin\AlternatifNilaiController');
-    Route::get('perhitungan', 'Admin\PerhitunganController@index')->name('perhitungan.index');
-
+    Route::resource('perhitungan', 'Admin\PerhitunganController');
+    Route::get('perhitungan/detail/{user_id}', 'Admin\PerhitunganController@detail')->name('perhitungan.detail');
     Route::get('perhitungan/pdf', 'Admin\PerhitunganController@pdf')->name('perhitungan.pdf');
 });

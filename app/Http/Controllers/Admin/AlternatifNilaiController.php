@@ -92,7 +92,13 @@ class AlternatifNilaiController extends Controller
      */
     public function show($id)
     {
-        //
+        $alternatifnilai = AlternatifNilai::where('alternatif_id', $id)->first();
+            // query eloquend database untuk menampilkan data alternatif nilai
+        $selects = AlternatifNilai::select('alternatif_nilais.id', 'kriterias.id as kode_kriteria', 'kriterias.kriteria_nama', 
+        'alternatif_nilais.nilai_kriteria_id')
+        ->join('kriterias', 'kriterias.id', '=', 'alternatif_nilais.kriteria_id')
+        ->where('alternatif_id', $id)
+        ->orderBy('kriteria_id','ASC')->get();
     }
 
     /**
