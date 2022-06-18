@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Alternatif;
 use App\Models\AlternatifNilai;
 use App\Models\Kriteria;
+use App\Models\DescriptionAlternatif;
 use Illuminate\Http\Request;
 use PDF;
 use Auth;
@@ -164,6 +165,7 @@ class PerhitunganController extends Controller
             "Autonomic" => $sum_saw3,
             "Panic Related" => $sum_saw4
          );
+
          
         $best_saw = max($saw_total);
         $detail_saw = array_keys($saw_total, $best_saw);

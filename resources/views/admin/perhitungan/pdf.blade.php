@@ -107,172 +107,336 @@
         </table>
     </div>
     <div class="body" style="padding-left:60px;padding-right:60px;padding-top:0px;">
-            <h4 style="text-align:center;">Hasil Analisa</h4>
-            <div style="border: 1px solid #000;padding-bottom:5px;"></div>
-                <table border="1" style="width: 100%;border-collapse: collapse;">
-                    <thead>
+        <div class="container">
+            <!--begin::Card Details User-->
+            <div class="card mb-3">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Nama</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                          {{ $user->user->name }}
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Email</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {{ $user->user->email }}
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Hasil BAI</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {{ $saw['total_BAI'] }} -- <span class="badge badge-primary">{{ $saw['detail_BAI'] }}</span>
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Hasil SAW</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                        {{ $saw['best_saw'] }} --  
+                        @foreach ($saw['detail_saw'] as $ds)
+                            <span class="badge badge-primary">{{ $ds }}</span>
+                        @endforeach
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Tanggal Test</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      {{ $user->created_at }}
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">File PDF</h6>
+                    </div>
+                    <div class="col-sm-9 text-secondary">
+                      <a href="perhitungan/pdf"><span class="badge badge-primary">download pdf</span></a>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <!--end::Card Detail User-->
+    
+            <!--begin::Card Alternatif Keseluruhan-->
+            <div class="card mb-3">
+              <div class="card-body">
+                <h1 class="title_alternatif">Alternatif Keseluruhan</h1>
+                <table class="table table-bordered table-striped" id="myTable">
+                  <thead>
+                    <tr>
+                      <th scope="col">No</th>
+                      <th scope="col">Alternatif</th>
+                      <th scope="col">Nilai Kriteria</th>
+                      <th scope="col">Keterangan Kriteria</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                      @foreach ($an as $index => $a)
+                      <tr>
+                          <th scope="row">{{ $index + 1 }}</th>
+                          <td>{{ $a->kriteria->alternatif_id }}</td>
+                          <td>{{ $a->kriteriaNilai->kn_nilai }}</td>
+                          <td>{{ $a->kriteriaNilai->kn_keterangan }}</td>
+                        </tr>
+                      @endforeach
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!--End::Card Alternatif Keseluruhan-->
+    
+            <!--begin::Card Matrix Sebelum Normalisasi-->
+            <div class="card mb-3">
+              <div class="card-body">
+                <h3>Matrix sebelum normalisasi</h3>
+                <hr>
+                <table class="table table-bordered table-striped my-5">
+                  <thead>
+                      <tr>
+                        <th rowspan="2">A1</th>
+                        <th colspan="6" class="text-center">Kriteria</th>
+                      </tr>
+                      <tr>
+                        <th>C1</th>
+                        <th>C2</th>
+                        <th>C3</th>
+                        <th>C4</th>
+                        <th>C5</th>
+                        <th>C6</th>
+                      </tr>
+                    </thead>
+                    <tbody>
                         <tr>
-                            <th>Kode Alternatif</th>
-                            <th>Nama Alternatif</th>
-                            @foreach ($kriterias as $kriteria)
-                                <th>{{$kriteria->kriteria_nama}}</th>
+                          <th scope="col">Nilai Rating</th>
+                            @foreach ($saw['matrix1'] as $mx1)
+                                <td class="text-center">{{ $mx1 }}</td>
                             @endforeach
                         </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($alternatif_nilais as $alternatif_nilai)
-                        <tr>
-                            <td>
-                                <?=$alternatif_nilai->kode_alternatif?>
-                            </td>
-                            <td>
-                                <?=$alternatif_nilai->nama_alternatif?>
-                            </td>
-                            <?php 
-                                $queries = App\Models\AlternatifNilai::
-                                leftJoin('kriteria_nilais', 'kriteria_nilais.id','=','alternatif_nilais.nilai_kriteria_id')
-                                ->where('alternatif_id', $alternatif_nilai->kode_alternatif)
-                                ->orderBy('kriteria_nilais.kriteria_id','ASC')
-                                ->get();
-                            ?>
-                                @foreach ($queries as $dt)
-                                    <td>
-                                        {{$dt->kn_keterangan}}
-                                    </td>
-                                @endforeach
-                        </tr>
-                        @endforeach
                     </tbody>
                 </table>
-                <table border="1" style="width: 100%;border-collapse: collapse;padding-top:10px;padding-bottom:10px;">
+                <table class="table table-bordered table-striped my-5">
+                    <thead>
+                      <tr>
+                        <th rowspan="2">A2</th>
+                        <th colspan="7" class="text-center">Kriteria</th>
+                      </tr>
+                      <tr>
+                        <th>C7</th>
+                        <th>C8</th>
+                        <th>C9</th>
+                        <th>C10</th>
+                        <th>C11</th>
+                        <th>C12</th>
+                        <th>C13</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="col">Nilai Rating</th>
+                            @foreach ($saw['matrix2'] as $mx2)
+                            <td class="text-center">{{ $mx2 }}</td>
+                            @endforeach
+                        </tr>
+                    </tbody>
+                </table>
+                <table class="table table-bordered table-striped my-5">
+                    <thead>
+                      <tr>
+                        <th rowspan="2">A3</th>
+                        <th colspan="4" class="text-center">Kriteria</th>
+                      </tr>
+                      <tr>
+                        <th>C14</th>
+                        <th>C15</th>
+                        <th>C16</th>
+                        <th>C17</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="col">Nilai Rating</th>
+                            @foreach ($saw['matrix3'] as $mx3)
+                                <td class="text-center">{{ $mx3 }}</td>
+                            @endforeach
+                        </tr>
+                      </tbody>
+                </table>
+                <table class="table table-bordered table-striped my-5">
+                    <thead>
+                      <tr>
+                        <th rowspan="2">A4</th>
+                        <th colspan="4" class="text-center">Kriteria</th>
+                      </tr>
+                      <tr>
+                        <th>C18</th>
+                        <th>C19</th>
+                        <th>C20</th>
+                        <th>C21</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="col">Nilai Rating</th>
+                            @foreach ($saw['matrix4'] as $mx4)
+                                <td class="text-center">{{ $mx4 }}</td>
+                            @endforeach
+                        </tr>
+                    </tbody>
+                </table>
+              </div>
+            </div>
+            <!--End::Card Matrix Sebelum Normalisasi-->
+            
+            <!--Begin::Card Matrix Setelah Normalisasi-->
+            <div class="card mb-3">
+              <div class="card-body">
+                <h3 class="mt-5">Matrix setelah normalisasi</h3>
+                <hr>
+                <table class="table table-bordered table-striped my-5">
+                    <thead>
+                      <tr>
+                        <th rowspan="2">A1</th>
+                        <th colspan="6" class="text-center">Kriteria</th>
+                      </tr>
+                      <tr>
+                        <th>C1</th>
+                        <th>C2</th>
+                        <th>C3</th>
+                        <th>C4</th>
+                        <th>C5</th>
+                        <th>C6</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="col">Nilai Rating</th>
+                            @foreach ($saw['arr_n1'] as $mx_n1)
+                            <td class="text-center">{{ $mx_n1 }}</td>
+                            @endforeach
+                        </tr>
+                      </tbody>
+                </table>
+                <table class="table table-bordered table-striped my-5">
+                    <thead>
+                      <tr>
+                        <th rowspan="2">A2</th>
+                        <th colspan="7" class="text-center">Kriteria</th>
+                      </tr>
+                      <tr>
+                        <th>C7</th>
+                        <th>C8</th>
+                        <th>C9</th>
+                        <th>C10</th>
+                        <th>C11</th>
+                        <th>C12</th>
+                        <th>C13</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                            <th scope="col">Nilai Rating</th>
+                            @foreach ($saw['arr_n2'] as $mx_n2)
+                            <td class="text-center">{{ $mx_n2 }}</td>
+                            @endforeach
+                        </tr>
+                    </tbody>
+                  </table>
+                <table class="table table-bordered table-striped my-5">
+                    <thead>
+                      <tr>
+                        <th rowspan="2">A3</th>
+                        <th colspan="4" class="text-center">Kriteria</th>
+                      </tr>
+                      <tr>
+                        <th>C14</th>
+                        <th>C15</th>
+                        <th>C16</th>
+                        <th>C17</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="col">Nilai Rating</th>
+                            @foreach ($saw['arr_n3'] as $mx_n3)
+                                <td class="text-center">{{ $mx_n3 }}</td>
+                            @endforeach
+                          </tr>
+                    </tbody>
+                </table>
+                <table class="table table-bordered table-striped my-5">
+                    <thead>
+                      <tr>
+                        <th rowspan="2">A4</th>
+                        <th colspan="4" class="text-center">Kriteria</th>
+                      </tr>
+                      <tr>
+                        <th>C18</th>
+                        <th>C19</th>
+                        <th>C20</th>
+                        <th>C21</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                            <th scope="col">Nilai Rating</th>
+                            @foreach ($saw['arr_n4'] as $mx_n4)
+                                <td class="text-center">{{ $mx_n4 }}</td>
+                                @endforeach
+                        </tr>
+                    </tbody>
+                </table>
+              </div>
+            </div>
+            <!--End::Card Matrix Setelah Normalisasi-->
+            
+            <!--Begin::Begin Matrix Hasil Perhitungan SAW-->
+            <div class="card mb-3">
+              <div class="card-body">
+                <h3 class="mt-5">Hasil perhitungan SAW</h3>
+                <hr>
+                <table class="table table-bordered table-striped my-5">
                     <thead>
                         <tr>
-                        <th>Kode Alternatif</th>
-                        <th>Nama Alternatif</th>
-                        @foreach ($kriterias as $kriteria)
-                            <th>{{$kriteria->kriteria_nama}}</th>
-                        @endforeach
+                          <th scope="col">Alternatif</th>
+                            <th scope="col">Nilai SAW</th>
                         </tr>
-                    </thead>
+                      </thead>
                     <tbody>
-                        @foreach ($alternatif_nilais as $alternatif_nilai)
                         <tr>
-                            <td>
-                                <?=$alternatif_nilai->kode_alternatif?>
-                            </td>
-                            <td>
-                                <?=$alternatif_nilai->nama_alternatif?>
-                            </td>
-                            <?php 
-                                $queries = App\Models\AlternatifNilai::
-                                leftJoin('kriteria_nilais', 'kriteria_nilais.id','=','alternatif_nilais.nilai_kriteria_id')
-                                ->where('alternatif_id', $alternatif_nilai->kode_alternatif)
-                                ->orderBy('kriteria_nilais.kriteria_id','ASC')
-                                ->get();
-                            ?>
-                                @foreach ($queries as $dt)
-                                    <td>
-                                        {{$dt->kn_nilai}}
-                                    </td>
-                                @endforeach
+                            <th>Aspek Subjective</th>
+                            <td>{{ $saw['saw_a1'] }}</td>
                         </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                <h4 style="text-align:center;padding-top:5px;">Normalisasi</h4>
-            <div style="border: 1px solid #000;padding-bottom:5px;"></div>
-            <table border="1" style="width: 100%;border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th>Kode Alternatif</th>
-                        <th>Nama Alternatif</th>
-                        <?php $bobot = [] ?>
-                        @foreach ($kriterias as $kriteria)
-                            <?php $bobot[$kriteria->id] = $kriteria->kriteria_bobot ?>
-                            <th>{{$kriteria->kriteria_nama}}</th>
-                        @endforeach
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @if(!empty($alternatif))
-                        <?php $rangking = []; ?>
-                        @foreach($alternatif as $data)
-                            <tr>
-                                <td>{{$data->id}}</td>
-                                <td>{{$data->alternatif_nama}}</td>
-                                <?php $total = 0;?>
-                                @foreach($data->crip as $crip)
-                                    @if($crip->kriteria->kriteria_atribut == 'cost') 
-                                        <?php $normalisasi = ($kode_krit[$crip->kriteria->id]/$crip->kn_nilai); ?>
-                                    @elseif($crip->kriteria->kriteria_atribut == 'benefit')
-                                        <?php $normalisasi = ($crip->kn_nilai/$kode_krit[$crip->kriteria->id]); ?>
-                                    @endif
-                                        <?php 
-                                        $total = $total+($bobot[$crip->kriteria->id]*$normalisasi);
-                                        // $total = $total+($crip->kriteria->id*$normalisasi);
-                                        ?>
-                                        <td>{{round($normalisasi, 2)}}</td> 
-                                @endforeach
-                                <?php $rangking[] = [
-                                    'kode'  => $data->id,
-                                    'photo'  => $data->alternatif_image,
-                                    'nama'  => $data->alternatif_nama,
-                                    'harga'  => $data->alternatif_harga,
-                                    'ukuran_layar'  => $data->alternatif_ukuran_layar,
-                                    'ram'  => $data->alternatif_ram,
-                                    'baterai'  => $data->alternatif_baterai,
-                                    'memory'  => $data->alternatif_storage,
-                                    'kamera'  => $data->alternatif_kamera,
-                                    'total' => $total
-                                ]; ?>
-                            </tr>
-                        @endforeach
-                    @else
                         <tr>
-                            <td colspan="{{(count($kriteria)+1)}}" class="text-center">Data tidak ditemukan</td>
+                            <th>Aspek Neurophysiology</th>
+                            <td>{{ $saw['saw_a2'] }}</td>
                         </tr>
-                    @endif
-                </tbody>
-            </table>   
-            <h4 style="text-align:center;padding-top:5px;">Perhitungan</h4>
-        <div style="border: 1px solid #000;padding-bottom:5px;"></div>
-            <table border="1" style="width: 100%;border-collapse: collapse;">
-                <thead>
-                    <tr>
-                        <th>Kode Alternatif</th>
-                        <th>Foto Alternatif</th>
-                        <th>Nama Alternatif</th>
-                        <th>Total</th>
-                        <th>Ranking</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php
-                $rangking = collect($rangking)->sortBy('total')->reverse()->toArray();
-                $a = 1;
-                ?>
-                    @foreach($rangking as $t)
                         <tr>
-                            <td>{{$t['kode']}}</td>
-                            <td>
-                                <a class='example-image-link' data-lightbox='example-1' data-fancybox-group='gallery'  href="{{$t['photo']}}" ><img src="{{$t['photo']}}" height="50"></a>
-                            </td>
-                            <td>
-                                <h4>{{$t['nama']}}</h4> <br/>
-                                <b>Harga : </b> {{$t['harga']}}<br/>
-                                <b>Ukuran Layar : </b> {{$t['ukuran_layar']}}<br/>
-                                <b>RAM :</b> {{$t['ram']}}<br/>
-                                <b>DAYA BATERAI :</b> {{$t['baterai']}}<br/>
-                                <b>KAPASISTAS MEMORY INTERNAL :</b> {{$t['memory']}}<br/>
-                                <b>KAMERA :</b> {{$t['kamera']}}
-                            </td>
-                            <td>{{round($t['total'], 2)}}</td>
-                            <td>{{$a++}}</td>
+                          <th>Aspek Autonomic</th>
+                            <td>{{ $saw['saw_a3'] }}</td>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table> 
+                        <tr>
+                            <th>Aspek Panic Related</th>
+                            <td>{{ $saw['saw_a4'] }}</td>
+                        </tr>
+                      </tbody>
+                  </table>
+              </div>
             </div>
+        </div>
             
     </div>
 </div>
