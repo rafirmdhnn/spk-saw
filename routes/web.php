@@ -31,5 +31,5 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth']], function(){
     Route::resource('alternatif-nilai', 'Admin\AlternatifNilaiController');
     Route::resource('perhitungan', 'Admin\PerhitunganController');
     Route::get('perhitungan/detail/{user_id}', 'Admin\PerhitunganController@detail')->name('perhitungan.detail');
-    Route::get('perhitungan/pdf', 'Admin\PerhitunganController@pdf')->name('perhitungan.pdf');
+    Route::get('perhitungan/pdf/{user_id}', 'Admin\PerhitunganController@pdf')->name('perhitungan.pdf');
 });

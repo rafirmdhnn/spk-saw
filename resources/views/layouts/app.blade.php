@@ -476,7 +476,9 @@
 		{{-- <script src="{{asset('assets/js/pages/crud/forms/widgets/select2.js')}}"></script> --}}
 		<!--end::Page Scripts-->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.8/js/select2.min.js" defer></script>
-		
+		{{-- begin::chart js --}}
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" integrity="sha512-QSkVNOCYLtj73J4hbmVoOV6KVZuMluZlioC+trLpewV8qMjsWqlIQvkn1KGX2StWvPMdWGBqim1xlC8krl1EKQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+		{{-- end:: chart js --}}
 		@stack('js')
 		
 		<script src="{{asset('assets/js/mask/jquery.mask.js')}}"></script>

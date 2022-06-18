@@ -7,6 +7,22 @@
               paling dominan anda rasakan adalah aspek gejala:</p>
                 @foreach ($saw['detail_saw'] as $ds)
                     <h1 class="mt-5 mb-5 text-center">{{ $ds }}</h1>
+                    @switch($ds)
+                        @case($ds == "Autonomic")
+                            <p class="text-dark mt-5 text-center"> Lorem ipsum dolor sir amat</p>
+                            @break
+                        @case($ds == "Subjective")
+                            <p class="text-dark mt-5 text-center"> Lorem ipsum dolor sir amat2</p>
+                            @break
+                        @case($ds == "Panic Related")
+                            <p class="text-dark mt-5 text-center"> Lorem ipsum dolor sir amat3</p>
+                            @break
+                        @case($ds == "Neuropology")
+                            <p class="text-dark mt-5 text-center"> Lorem ipsum dolor sir amat4</p>
+                            @break
+                        @default
+                    @endswitch
+                    
                 @endforeach
         </div>
         <div class="row d-flex justify-content-center mt-5">
