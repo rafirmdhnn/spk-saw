@@ -16,19 +16,14 @@
                 <div class="card-title">
                     <h3 class="card-label">Daftar Nilai Kriteria</h3>
                 </div>
-                <div class="card-toolbar">
-                    
-                    <!--begin::Button-->
+                {{-- <div class="card-toolbar">
                     <div class="form-group row pull-right">
-                        @if(Auth::user()->is_role == 1)
                         <a href="{{route('kriteria-nilai.create')}}" class="btn btn-primary font-weight-bolder">
                         <span class="svg-icon svg-icon-md">
                             <span class="fa fa-plus"></span>
                         </span>Tambah</a>
-                        @endif
                     </div>
-                    <!--end::Button-->
-                </div>
+                </div> --}}
             </div>
             <div class="card-body">
                 @if (Session::has('success'))
@@ -36,68 +31,60 @@
                         {{Session::get('success')}}
                     </div>
                 @endif
-                <div class="form-check-inline mb-10">
-                    <label class="col-form-label">Pilih Kriteria
-                        <span class="text-danger">*</span>
-                    </label>
-                    <div class="col-lg-6 col-md-6 col-sm-12">
-                        <select name="nilai_kriteria_id" id="nilai_kriteria_id" class="form-control">
-                            <option value="">-- Pilih Kriteria --</option>
-                            @foreach ($kriterias as $kriteria)
-                                <option {{old('kriteria_id', $kriteria->id) == @$_GET['kriteria_id'] ? 'selected' : ''}} value="{{$kriteria->id}}">{{$kriteria->id}} - {{$kriteria->kriteria_nama}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-danger font-weight-bolder filter-nilaikritera">
-                        <span class="svg-icon svg-icon-md">
-                            <span class="fa fa-plus"></span>
-                        </span>FILTER
-                    </button>
-                </div>
                 <!--begin: Datatable-->
                 <table class="table table-separate table-head-custom table-checkable" id="lks_datatable">
                     <thead>
                     <tr>
                         <th>No.</th>
-                        <th>Nama Kriteria</th>
                         <th>Keterangan</th>
                         <th>Nilai</th>
-                        @if(Auth::user()->is_role == 1)
+                        {{-- @if(Auth::user()->is_role == 1) --}}
                         <th width="170px">Aksi</th>
-                        @endif
+                        {{-- @endif --}}
                     </tr>
                     </thead>
                     <tbody>
-                        @php($i=1)
-                        @foreach ($nilais as $nilai)
-                            <tr>
-                                <td>{{$i++}}</td>
-                                <td>
-                                    {{$nilai->kriteria->kriteria_nama}}
-                                </td>
-                                <td>
-                                    {{$nilai->kn_keterangan}}
-                                </td>
-                                <td>
-                                    {{$nilai->kn_nilai}}
-                                </td>
-                                @if(Auth::user()->is_role == 1)
-                                <td>
-                                    <div class="d-flex">
-                                        <div class="mr-1">
-                                            <a href={{route('kriteria-nilai.edit', $nilai->id)}} class="btn btn-sm btn-primary"> <i class="fa fa-pencil-alt"></i> Ubah</a>
-                                        </div>
-                                    <div>
-                                </td>
-                                @endif
-                            </tr>
-                        @endforeach
                     </tbody>
                 </table>
                 <!--end: Datatable-->
             </div>
         </div>
         <!--end::Card-->
+
+         {{-- Modal for Edit Data --}}
+         <div class="modal fade" id="edit_nilaiKriteria" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="edit_nilaiKriteria_title">Edit Nilai Kriteria</h5>
+                    </div>
+
+                    <ul class="mx-5 mt-2 mb-0" id="updateform_errlist"></ul>
+
+                    <div class="modal-body">
+                        {{-- <form method="POST" action=""> --}}
+                            <div class="form-group">
+                              <input type="hidden" id="nilaiKriteria_id">
+                            </div>
+                            <div class="form-group">
+                              <label for="ketNilaiKriteria">Keterangan Nilai Kriteria</label>
+                                <input class="form-control" id="edit_ketNilai_kriteria">
+                            </div>
+                            <div class="form-group">
+                              <label for="nilaiKriteria">Nilai Kriteria</label>
+                                <input class="form-control" id="edit_nilai_kriteria">
+                              </select>
+                            </div>
+                          {{-- </form> --}}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-primary update_nilaiKriteria">Simpan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- end::Modal --}}
     </div>
     <!--end::Container-->
 </div>
@@ -133,32 +120,120 @@
     <script type="text/javascript" src="{{asset('assets/js/lightbox/js/lightbox.min.js')}}"></script>
     <script>
         $(document).ready(function () {
-            $('.filter-nilaikritera').click(function(){
-                let id = $('#nilai_kriteria_id').val();
-
-                window.location = '{{route('kriteria-nilai.index')}}?kriteria_id='+id;
+            var value;
+            var tbl;
+            var tblDetail;
+            $(document).ready(function () {
+                tbl = $('#lks_datatable').DataTable({
+                    responsive: true,
+                    "ordering": true,
+                    deferRender: true,
+                    serverSide: true,
+                    processing: true,
+                    orderMulti: true,
+                    stateSave: true,
+                    ajax: {
+                        url: '{{ route('kriteria-nilai.index') }}'
+                    },
+                     columns:[
+                        { data: 'DT_RowIndex', name: 'DT_RowIndex' },
+                        {
+                            data: 'keterangan_gejala',
+                            name: 'keterangan_gejala'
+                        },
+                        {
+                            data: 'nilai_gejala',
+                            name: 'nilai_gejala'
+                        },
+                        {
+                            data: 'action',
+                            name: 'action',
+                            orderable: false,
+                            searchable: false
+                        }
+                    ]
+                });
             });
-            
-            $('body').on('click', '.btnDelete', function (e) {
+            //JQuery to call Edit Modal
+            $(document).on('click', '.edit_nilaiKriteria', function (e) {
                 e.preventDefault();
-                var form = $(this).parent();
-                Swal.fire({
-                    title: "Anda Yakin?",
-                    text: "Ingin hapus data Alternatif ?",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Hapus",
-                    cancelButtonText: "Batal",
-                    reverseButtons: true,
-                    confirmButtonColor: '#d33',
-                }).then(function (result) {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    } else if (result.dismiss === "cancel") {
+    
+                var nilaiKriteria_id = $(this).val();
+                // console.log(kriteria_id);
+                var url = "{{ route('kriteria-nilai.edit', ':nilaiKriteria_id') }}";
+                url = url.replace(':nilaiKriteria_id', nilaiKriteria_id);
 
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    success: function (response) {
+                        // console.log(response);
+                        if(response.status == 404) {
+                            $('#success_message').html("");
+                            $('#success_message').addClass('alert alert-danger');
+                            $('#success_message').text(response.message);
+                        }else{
+                            $('#edit_ketNilai_kriteria').val(response.kriteriaNilai.keterangan_gejala);
+                            $('#edit_nilai_kriteria').val(response.kriteriaNilai.nilai_gejala);
+                            $('#nilaiKriteria_id').val(nilaiKriteria_id);
+                        }
                     }
                 });
             });
+             //JQuery to update the data
+             $(document).on('click', '.update_nilaiKriteria', function(e){
+                    e.preventDefault();
+                    var nilaiKriteria_id = $('#nilaiKriteria_id').val();
+                    $(this).text("Menyimpan");
+                    // get each input from modal edit kriteria
+                    var data = {
+                        'keterangan_nilai': $('#edit_ketNilai_kriteria').val(),
+                        'nilai': $('#edit_nilai_kriteria').val()
+                    }
+
+                    $.ajaxSetup({
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        }
+                    });
+                    
+                    // set the update url
+                    var url = "{{ route('kriteria-nilai.update', ':nilaiKriteria_id') }}";
+	                url = url.replace(':nilaiKriteria_id', nilaiKriteria_id);
+
+                    
+                    $.ajax({
+                        type: "PUT",
+                        url: url,
+                        data: data,
+                        dataType: "json",
+                        success: function(response){
+                            console.log(response);
+                            if(response.status == 400){
+                                $('#updateform_errlist').html("");
+                                $('#updateform_errlist').addClass('alert alert-danger');
+                                $.each(response.errors, function (key, err_values) {
+                                    $('#updateform_errlist').append('<li>'+err_values+'</li>')
+                                })
+                                $('.update_nilaiKriteria').text("Simpan");
+                            }else{
+                                $('#updateform_errlist').html("");
+                                $('#updateform_errlist').hide();
+                                
+                                Swal.fire({
+                                    position:'center',
+                                    icon:'success',
+                                    title: response.message,
+                                    timer: 2500,
+                                    showConfirmButton: false
+                                    }).then((result) => {
+                                        $('.update_nilaiKriteria').text("Simpan");
+                                        location.reload();
+                                    });
+                            }
+                        }
+                    })
+                });
         });
     </script>
     <!--end::Page Scripts-->

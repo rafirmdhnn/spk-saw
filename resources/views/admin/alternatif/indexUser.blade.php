@@ -17,14 +17,14 @@
                     <h3 class="card-label">Daftar Alternatif</h3>
                 </div>
                 <div class="card-toolbar">
-                    @if(Auth::user()->is_role == 1)
+                    {{-- @if(Auth::user()->is_role == 1) --}}
                     <!--begin::Button-->
                     <a href="{{route('alternatif.create')}}" class="btn btn-primary font-weight-bolder">
                     <span class="svg-icon svg-icon-md">
                         <span class="fa fa-plus"></span>
                     </span>Tambah</a>
                     <!--end::Button-->
-                    @endif
+                    {{-- @endif --}}
                 </div>
             </div>
             <div class="card-body">

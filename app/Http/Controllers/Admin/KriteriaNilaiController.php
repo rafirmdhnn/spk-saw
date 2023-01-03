@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Kriteria;
 use App\Models\KriteriaNilai;
+use App\Models\NilaiGejala;
 use Illuminate\Http\Request;
 use Auth;
+use Illuminate\Support\Facades\Validator;
 
 class KriteriaNilaiController extends Controller
 {
@@ -18,7 +20,6 @@ class KriteriaNilaiController extends Controller
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
             $this->user_id = Auth::user()->id;
-            $this->user_role = Auth::user()->is_role;
 
             return $next($request);
         });
@@ -31,32 +32,30 @@ class KriteriaNilaiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-        $user_id = $this->user_id;
-        // ini untuk mengambil $_GET kriteria_id atau digunakan untuk memfilter kriteria
-        $kriteria_id = $request->get('kriteria_id');
-        
-        // menampilkan data nilai kriteria berdasarkan kriteria_id teratas ASC dan nilai tertinggi DESC
-        $nilais = KriteriaNilai::with(['kriteria' => function($q) {
-            $q->orderBy('kriteria_nama','ASC');
-        }])->orderBy('kriteria_id','ASC');
 
-        // jika $kriteria_id sudah di filter akan menampilkan data where kriteria_id
-        if(!empty($kriteria_id)) {
-            $nilais = $nilais->where('kriteria_id', $kriteria_id);
+        // Jika Request dengan Menggunakan Data Ajax atau Datatables
+        if(request()->ajax()) {
+            $models = NilaiGejala::get();
+
+            // ini berfungsi untuk menampilkan data kriteria ke dalam datatables melalui ajax jquery
+            return datatables()->of($models)
+            ->addIndexColumn()
+            ->addColumn('action', function ($models) {
+                // Fungsi ini adalah button ubah dan hapus kriteria
+                $button = '<div class="d-flex">';
+                $button .= '<div class="mr-1">';
+                $button .= '<button type="button" value="'.$models->id.'" class="edit_nilaiKriteria btn btn-primary btn-sm" data-toggle="modal" data-target="#edit_nilaiKriteria"><span><i class="fa fa-pencil-alt"></i></span> Edit</button>';
+                $button .= '</div>';
+                return $button;
+            })
+            ->rawColumns(['action'])    
+            ->make(true);
         }
 
-        // menampilkan data nilai kriteria berdasarkan nilai tertinggi
-        $nilais = $nilais->orderBy('kn_nilai','DESC')->get();
 
-
-        // menampilkan data kriteria berdasarkan nama teratas
-        $kriterias = Kriteria::orderBy('id','ASC')->get();
-        
-         // untuk memanggil file index nilai kriteria yang ada di dalam folder resources/view/admin/kriterianilai/index
-         // compact berfungsi untuk mengirim nilai data ke view kriterianilai 
-        return view('admin.kriterianilai.index', compact('nilais','kriterias'));
+        return view('admin.kriterianilai.index');
     }
 
     /**
@@ -128,13 +127,23 @@ class KriteriaNilaiController extends Controller
      */
     public function edit($id)
     {
-        // menampilkan data kriteria di select option kriteria pada saat tambah kriteria nilai
-        $kriterias = Kriteria::select('id','kriteria_nama')->orderBy('kriteria_nama','ASC')->get();
-        // Untuk mendapatkan data nilai kriteria sesuai parameter idnya, karena ini akan menampilkan data yang ingin di edit
-        $kriterianilai = KriteriaNilai::findOrFail($id);
-        // untuk memanggil file edit nilai kriteria yang ada di dalam folder resources/view/admin/kriterianilai/edit
-        // compact artinya fungsi untuk memparsing nilai / data ke file view kriterianilai.edit
-        return view('admin.kriterianilai.edit', compact('kriterias','kriterianilai'));
+        // Untuk mendapatkan data kriteria sesuai parameter idnya, karena ini akan menampilkan data yang ingin di edit
+        $kriteriaNilai = NilaiGejala::where('id', $id)->first();
+
+        if($kriteriaNilai)
+        {
+            return response()->json([
+                'status'=> 200,
+                'kriteriaNilai'=> $kriteriaNilai
+            ]);
+        }
+        else
+        {
+            return response()->json([
+                'status'=> 404,
+                'message'=> 'Kriteria Nilai Not Found'
+            ]);
+        }
     }
 
     /**
@@ -146,39 +155,47 @@ class KriteriaNilaiController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // fungsi untuk validasi jika kriteria_id, kn_keterangan dan kn_nilai nilai kriteria kosong, jadi harus requried saat ubah data
-        $request->validate([
-            'kriteria_id'   => 'required',
-            'kn_keterangan' => 'required',
-            'kn_nilai' => 'required'
-        ]);
-        $request->validate([
-            'kn_nilai' => 'required'
-        ]);   
-        $model = KriteriaNilai::find($id);     
-        // cara kerja code ini sama dengan insert data, tapi ini khusus untuk edit data
-        // karena ada findOrFail artinya edit data berdasarkan $id 
-        $model->kriteria_id  = $request->kriteria_id;
-        $model->kn_keterangan = $request->kn_keterangan;
-        $model->kn_nilai = $request->kn_nilai;
-        $model->save();
+        // membuat custom message untuk setiap validasi dari request yang dikirimkan user
+        $messages = [
+            'keterangan_nilai.required' => 'Keterangan nilai kriteria harus diisi',
+            'nilai.required' => 'Nilai kriteria harus diisi',
+            'nilai.numeric' => 'Nilai kriteria hanya dapat diisi oleh angka'
+        ];
+        //untuk memvalidasi input yang dikirimkan oleh user
+        $validator = Validator::make($request->all(),[
+            'keterangan_nilai'=>'required|max:190',
+            'nilai'=>'required|numeric'
+        ], $messages);
+        
+        // //initiate variable untuk menampung request yang diperoleh
+        // $keterangan_nilai = $request->keterangan_nilai;
+        // $nilai = $request->nilai;
 
-        // Jika berhasil ubah/edit data user , akan redirect ke halaman kriteria-nilai.edit,
-        // dan menampilkan pesan berhasil Nilai Kriteria has been updated
+        // if data validate is false then send response 400 with error message
+        if($validator->fails())
+        {
+            return response()->json([
+                'status'=>400,
+                'errors'=>$validator->messages(),
+            ]);
+        // if data validate is true then run the query to update the data kriteria
+        }else{
+            $model = NilaiGejala::find ($id);
+            if($model){
+                $model->keterangan_gejala = $request->keterangan_nilai;
+                $model->nilai_gejala = $request->nilai;
+                $model->update();
 
-        $request->session()->flash('message', 'Successfully modified the task!');
-        return redirect()->route('kriteria-nilai.index', $id)->with('success', 'Nilai Kriteria has been updated');
-        // return redirect()->route('kriteria-nilai.edit', $id)->with('success', 'Nilai Kriteria has been updated');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+                return response()->json([
+                    'status'=>200,
+                    'message'=>'Data updated successfully',
+                ]);
+            } else {
+                return response()->json([
+                    'status'=>400,
+                    'message'=>'Nilai Kriteria not found',
+                ]);
+            }
+        }
     }
 }

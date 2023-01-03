@@ -17,7 +17,7 @@
                     @endif
                     <div class="form-group">
                         <label for="name">Nama Lengkap</label>
-                        <input type="text" class="form-control" id="name" name="name" value="{{old('name')}}" placeholder="Nama Lengkap">
+                        <input type="text" class="form-control" id="name" name="name" value="{{old('nama')}}" placeholder="Nama Lengkap">
                     </div>
                     <div class="form-group">
                         <label for="name">Email</label>
@@ -33,11 +33,11 @@
                     <input type="hidden" name="questions[]" value="{{$qs->id}}">
                         <div class="form-group">
                         <label for="inputAddress" class="font-weight-bold">{{$i++}}. {{$qs->kriteria_nama}}</label>
-                            @foreach ($qs->kriteria_nilai as $item)
+                            @foreach ($qs->nilai_gejala as $item)
                                 <div class="form-group">
-                                    <input type="hidden" name="nilai[]" value="{{$item->kn_nilai}}">
-                                    <input type="radio" required id="customRadio-{{$item->kriteria_id}}" name="answers[{{$item->kriteria_id}}]" value="{{old('answers'.$item->kriteria_id, $item->id)}}">
-                                    <label class="custom-control-label" for="customRadio-{{$item->kriteria_id}}">{{$item->kn_keterangan}}</label>
+                                    <input type="hidden" name="nilai[]" value="{{$item->nilai_gejala}}">
+                                    <input type="radio" required id="customRadio-{{$item->pivot->kriteria_id}}" name="answers[{{$item->pivot->kriteria_id}}]" value="{{old('answers'.$item->pivot->kriteria_id, $item->pivot->kn_gejala_id)}}">
+                                    <label class="custom-control-label" for="customRadio-{{$item->pivot->kriteria_id}}">{{$item->keterangan_gejala}}</label>
                                 </div>
                             @endforeach
                         </div>
