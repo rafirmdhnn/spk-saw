@@ -63,11 +63,11 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        // untuk memanggil file create user yang ada di dalam folder resources/view/admin/user/create
-        return view('admin.user.create');
-    }
+    // public function create()
+    // {
+    //     // untuk memanggil file create user yang ada di dalam folder resources/view/admin/user/create
+    //     return view('admin.user.create');
+    // }
 
     /**
      * Store a newly created resource in storage.
@@ -111,10 +111,10 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        //
-    }
+    // public function show($id)
+    // {
+    //     //
+    // }
 
     /**
      * Show the form for editing the specified resource.

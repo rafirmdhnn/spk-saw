@@ -16,14 +16,12 @@
                     <h3 class="card-label">Daftar Hasil Perhitungan</h3>
                 </div>
                 <div class="card-toolbar">
-                    @if(Auth::user()->is_role == 1)
                     <!--begin::Button-->
                     {{-- <a href="{{route('kriteria.create')}}" class="btn btn-primary font-weight-bolder">
                     <span class="svg-icon svg-icon-md">
                         <span class="fa fa-plus"></span>
                     </span>Tambah</a> --}}
                     <!--end::Button-->
-                    @endif
                 </div>
             </div>
             <div class="card-body">
@@ -104,8 +102,8 @@
                      columns:[
                         { data: 'DT_RowIndex', name: 'DT_RowIndex' },
                         {
-                            data: 'user.name',
-                            name: 'user.name'
+                            data: 'nama',
+                            name: 'nama'
                         },
                         {
                             data: 'created_at',

@@ -16,4 +16,12 @@ class Alternatif extends Model
     {
         return $this->belongsToMany(\App\Models\KriteriaNilai::class,'alternatif_nilais','alternatif_id','nilai_kriteria_id')->orderBy('kriteria_id', 'ASC');
     }
+
+    public function Kriteria(){
+        return $this->hasMany('\App\Models\NewKriteria');
+    }
+    
+    public function Bobot(){
+        return $this->hasMany('\App\Models\BobotGejala');
+    }
 }

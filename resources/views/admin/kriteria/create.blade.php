@@ -37,7 +37,7 @@
                     </div>
                 @endif
                 <div class="mb-15">
-                    @if(Auth::user()->is_role == 1)
+                    {{-- @if(Auth::user()->is_role == 1) --}}
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label">Nama Kriteria
                             <span class="text-danger">*</span>
@@ -58,7 +58,7 @@
                             </select>
                         </div>
                     </div>
-                    @endif
+                    {{-- @endif --}}
                     <div class="form-group row">
                         <label class="col-lg-3 col-form-label">Bobot Kriteria
                             <span class="text-danger">*</span>
