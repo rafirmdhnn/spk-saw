@@ -9,6 +9,7 @@ use App\Models\Kriteria;
 use App\Models\MatriksPostNorm;
 use App\Models\MatriksPreNorm;
 use App\Models\NewAlternatifNilai;
+use App\Models\NewKriteria;
 use App\Models\NilaiGejala;
 use App\Models\NewUser;
 use App\Models\NilaiSaw;
@@ -76,7 +77,9 @@ class PerhitunganController extends Controller
             $alternatif = Alternatif::where('id', $an->kriteria->alternatif_id)->value('alternatif_nama');
             $nilai_gejala = NilaiGejala::where('id', $an->kriteria_nilai_id)->value('nilai_gejala');
             $ket_gejala = NilaiGejala::where('id', $an->kriteria_nilai_id)->value('keterangan_gejala');
+            $kriteria = NewKriteria::where('id', $index+1)->value('kriteria_nama');
             $arr_alternatif[] = [
+                'Kriteria' => $kriteria,
                 'Alternatif' => $alternatif,
                 'Nilai Gejala' => $nilai_gejala,
                 'Keterangan Gejala' => $ket_gejala
@@ -144,55 +147,55 @@ class PerhitunganController extends Controller
         ]);
     }
 
-    public function pdf()
-    {
+    // public function pdf()
+    // {
 
-        $kriterias = Kriteria::orderBy('id','ASC')->get();
+    //     $kriterias = Kriteria::orderBy('id','ASC')->get();
 
-        $alternatif_nilais = AlternatifNilai::select([
-            'alternatifs.id as kode_alternatif',
-            'alternatifs.alternatif_nama as nama_alternatif',
-            'alternatifs.alternatif_image as image_alternatif',
-            'alternatif_nilais.kriteria_id as kode_kriteria',
-            'alternatif_nilais.nilai_kriteria_id as kode_nilai_kriteria'
-        ])
-        ->join('alternatifs', 'alternatifs.id','=','alternatif_nilais.alternatif_id')
-        ->join('kriterias', 'kriterias.id','=','alternatif_nilais.kriteria_id')
-        ->orderBy('alternatifs.id','ASC')
-        ->orderBy('alternatif_nilais.kriteria_id','ASC')
-        ->groupBy('alternatif_nilais.alternatif_id')
-        ->get();
+    //     $alternatif_nilais = AlternatifNilai::select([
+    //         'alternatifs.id as kode_alternatif',
+    //         'alternatifs.alternatif_nama as nama_alternatif',
+    //         'alternatifs.alternatif_image as image_alternatif',
+    //         'alternatif_nilais.kriteria_id as kode_kriteria',
+    //         'alternatif_nilais.nilai_kriteria_id as kode_nilai_kriteria'
+    //     ])
+    //     ->join('alternatifs', 'alternatifs.id','=','alternatif_nilais.alternatif_id')
+    //     ->join('kriterias', 'kriterias.id','=','alternatif_nilais.kriteria_id')
+    //     ->orderBy('alternatifs.id','ASC')
+    //     ->orderBy('alternatif_nilais.kriteria_id','ASC')
+    //     ->groupBy('alternatif_nilais.alternatif_id')
+    //     ->get();
 
 
-        $kriteria = Kriteria::all();
-        $alternatif = Alternatif::all();
-        $kode_krit = [];
-        foreach ($kriteria as $krit)
-        {
-            $kode_krit[$krit->id] = [];
-            foreach ($alternatif as $al)
-            {
-                foreach ($al->crip as $crip)
-                {
-                        if ($crip->kriteria->id == $krit->id)
-                        {
-                            $kode_krit[$krit->id][] = $crip->kn_nilai;
-                        }
-                }
-            }
+    //     $kriteria = Kriteria::all();
+    //     $alternatif = Alternatif::all();
+    //     $kode_krit = [];
+    //     foreach ($kriteria as $krit)
+    //     {
+    //         $kode_krit[$krit->id] = [];
+    //         foreach ($alternatif as $al)
+    //         {
+    //             foreach ($al->crip as $crip)
+    //             {
+    //                     if ($crip->kriteria->id == $krit->id)
+    //                     {
+    //                         $kode_krit[$krit->id][] = $crip->kn_nilai;
+    //                     }
+    //             }
+    //         }
 
-            if ($krit->kriteria_atribut == 'cost')
-            {
-                $kode_krit[$krit->id] = min($kode_krit[$krit->id]);
-            } elseif ($krit->kriteria_atribut == 'benefit')
-            {
-                $kode_krit[$krit->id] = max($kode_krit[$krit->id]);
-            }
-        };
+    //         if ($krit->kriteria_atribut == 'cost')
+    //         {
+    //             $kode_krit[$krit->id] = min($kode_krit[$krit->id]);
+    //         } elseif ($krit->kriteria_atribut == 'benefit')
+    //         {
+    //             $kode_krit[$krit->id] = max($kode_krit[$krit->id]);
+    //         }
+    //     };
       
-        $pdf = PDF::loadView('admin.perhitungan.pdf', compact('kriterias','alternatif_nilais','kriteria','alternatif','kode_krit'))->setPaper('a4', 'potrait');
+    //     $pdf = PDF::loadView('admin.perhitungan.pdf', compact('kriterias','alternatif_nilais','kriteria','alternatif','kode_krit'))->setPaper('a4', 'potrait');
 
        
-        return $pdf->stream();
-    }
+    //     return $pdf->stream();
+    // }
 }

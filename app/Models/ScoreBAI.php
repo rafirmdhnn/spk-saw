@@ -16,3 +16,4 @@ class ScoreBAI extends Model
         return $this->belongsTo('App\Models\NewUser');
     }
 }
+?>

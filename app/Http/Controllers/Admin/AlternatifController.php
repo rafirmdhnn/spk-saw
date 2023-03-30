@@ -67,11 +67,11 @@ class AlternatifController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        // untuk memanggil file create alternatif yang ada di dalam folder resources/view/admin/alternatif/create
-        return view('admin.alternatif.create');
-    }
+    // public function create()
+    // {
+    //     // untuk memanggil file create alternatif yang ada di dalam folder resources/view/admin/alternatif/create
+    //     return view('admin.alternatif.create');
+    // }
 
     /**
      * Store a newly created resource in storage.
@@ -86,10 +86,10 @@ class AlternatifController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        //
-    }
+    // public function show($id)
+    // {
+    //     //
+    // }
 
     /**
      * Show the form for editing the specified resource.

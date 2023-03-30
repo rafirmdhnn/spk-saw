@@ -77,6 +77,7 @@
               <thead>
                 <tr>
                   <th scope="col">No</th>
+                  <th scope="col">Kriteria</th>
                   <th scope="col">Alternatif</th>
                   <th scope="col">Nilai Kriteria</th>
                   <th scope="col">Keterangan Kriteria</th>
@@ -86,6 +87,7 @@
                   @foreach ($arr_alternatif as $index => $aa)
                   <tr>
                       <th scope="row">{{ $index + 1 }}</th>
+                      <td>{{ $aa['Kriteria'] }}</td>
                       <td>{{ $aa['Alternatif'] }}</td>
                       <td>{{ $aa['Nilai Gejala'] }}</td>
                       <td>{{ $aa['Keterangan Gejala'] }}</td>
