@@ -116,9 +116,23 @@ class PerhitunganController extends Controller
             "Autonomic" => $hasil_saw->saw_a3,
             "Panic Related" => $hasil_saw->saw_a4
          );
+
+         $max_value = max($saw_val); // Get the maximum value
+         $best_saw = array(); // Initialize an empty array to store the arrays with the maximum value
+         
+         if ($max_value > 0 ) {
+            foreach ($saw_val as $key => $value) {
+                if ($value == $max_value) {
+                    $best_saw[$key] = $value; // Add the key-value pair to the $best_saw array if the value matches the maximum value
+                }
+            }
+            $empty_saw = false;
+        }else{
+            $empty_saw = true;
+        }
         
-        $max_saw = max($saw_val);
-        $detail_saw = array_search($max_saw, $saw_val);
+        // $max_saw = max($saw_val);
+        $detail_saw = array_search($best_saw, $saw_val);
         
         $desc_hasil = array(
             "Nama" => $nilai_bai->user->nama,
@@ -127,8 +141,10 @@ class PerhitunganController extends Controller
             "Hasil Bai" => $nilai_bai->total_score,
             "Level Bai" => $nilai_bai->level_bai,
             "Detail SAW" => $detail_saw,
-            "Max SAW" => $max_saw,
-            "Tanggal" => $nilai_bai->created_at
+            "Max SAW" => $max_value,
+            "Best SAW" => $best_saw,
+            "empty_saw" => $empty_saw,
+            "Tanggal" => $hasil_saw->created_at
         );
         
         

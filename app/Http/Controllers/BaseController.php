@@ -155,10 +155,26 @@ class BaseController extends Controller
             "Panic Related" => $hasil_saw->saw_a4
          );
         
-        $max_saw = max($saw_val);
-        $detail_saw = array_search($max_saw, $saw_val);
+         $max_value = max($saw_val); // Get the maximum value
+         $best_saw = array(); // Initialize an empty array to store the arrays with the maximum value
+        
+        if ($max_value > 0 ) {
+            foreach ($saw_val as $key => $value) {
+                if ($value == $max_value) {
+                    $best_saw[$key] = $value; // Add the key-value pair to the $best_saw array if the value matches the maximum value
+                }
+            }
+    
+            // $max_saw = max($saw_val);
+            // $detail_saw = array_search($best_saw, $saw_val);
+            $empty_saw = false;
+        }else{
+            $empty_saw = true;
+        }
+     
+        // dd($empty_saw);
 
-        return view('user.result', [ 'user_id' => $user_id, 'hasil_bai' => $hasil_bai, 'saw_val' => $saw_val, 'detail_saw' => $detail_saw]);
+        return view('user.result', [ 'user_id' => $user_id, 'hasil_bai' => $hasil_bai, 'saw_val' => $saw_val, 'best_saw' => $best_saw, 'empty_saw' => $empty_saw]);
     }
 
     public function calculateSaw($id){

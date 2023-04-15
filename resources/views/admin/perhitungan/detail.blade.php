@@ -44,7 +44,11 @@
                 </div>
                 <div class="col-sm-9 text-secondary">
                     {{ $desc_hasil['Max SAW'] }} --  
-                        <span class="badge badge-primary">{{ $desc_hasil['Detail SAW'] }}</span>
+                    @if( $desc_hasil['empty_saw'] == true )
+                        <span class="badge badge-primary">Tidak ada gejala</span>
+                    @else
+                        <span class="badge badge-primary">{{ implode(', ', array_keys($desc_hasil['Best SAW'])) }}</span>
+                    @endif
                 </div>
               </div>
               <hr>

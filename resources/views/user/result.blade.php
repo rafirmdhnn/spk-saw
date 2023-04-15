@@ -11,8 +11,13 @@
                     {{ $hasil_bai->detail_bai }}
                 </p>
                 <p class="mt-4 text-dark text-justify">
+                    @if( $empty_saw == true )
+                    Berdasarkan analisa hasil anda, tidak ada gejala ataupun gangguan kecemasan yang anda alami
+                    @else
                     Berdasarkan analisa hasil anda, jenis gejala dari gangguan kecemasan yang paling dominan anda rasakan adalah aspek gejala 
-                    <b>{{ $detail_saw }}</b>. Untuk diagnosa lebih mendalam silahkan anda mendatangi dokter/psikolog.
+                        <b>{{ implode(', ', array_keys($best_saw)) }}</b>
+                    @endif
+                    . Untuk diagnosa lebih mendalam silahkan anda mendatangi dokter/psikolog.
                 </p>
                 <h5 class="mt-4">Berikut hasil perhitungan aspek gejala menggunakan metode Simple Additive Weighting (SAW)</h5>
                 {{-- Begin: Table for SAW Result --}}
