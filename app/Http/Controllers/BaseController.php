@@ -2,22 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AlternatifNilai;
-use App\Models\Kriteria;
-use App\Models\KriteriaNilai;
-use App\Models\User;
+use App\Models\BobotGejala;
+use App\Models\NewAlternatifNilai;
+use App\Models\MatriksPreNorm;
+use App\Models\NilaiSaw;
+use App\Models\MatriksPostNorm;
+use App\Models\NilaiGejala;
+use App\Models\NewKriteria;
+use App\Models\ScoreBAI;
+use App\Models\NewUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class BaseController extends Controller
 {
+
+    // private $kualitas_tidur  = [];
+    private $kualitas_tidur = [];
+    private $pola_makan = [];
+    private $rutinitas_olahraga = [];
+
     public function index() {
         return view('user.home');
     }
 
 
     public function question() {
-        $questions = Kriteria::with('kriteria_nilai')->get();
+        $questions = NewKriteria::with('nilai_gejala', 'kriteria_nilai')->get();
+        
 
         return view('user.question', compact('questions'));
     }
@@ -26,17 +38,30 @@ class BaseController extends Controller
         $request->validate([
             'name'   => 'required',
             'umur'   => 'required',
-            'email'  => 'required|email|unique:users,email'
+            'email'  => 'required|email|unique:user,email',
+            'kualitas_tidur' => 'required',
+            'pola_makan' => 'required',
+            'rutinitas_olahraga' => 'required'
         ]);
 
-        $user = new User();
-        $user->name = $request->name;
+        //insert data user
+        $user = new NewUser();
+        $user->nama = $request->name;
         $user->umur = $request->umur;
         $user->email = $request->email;
         $user->save();
 
-        $nilai = $request->all();
+        //insert data kualitas tidur, rutinitas olahraga, pola makan
+        $this->kualitas_tidur = $request->input('kualitas_tidur');
+        $this->pola_makan = $request->input('pola_makan');
+        $this->rutinitas_olahraga = $request->input('rutinitas_olahraga');
 
+        // Store the selected value in the session.
+        $request->session()->put('kualitas_tidur', $this->kualitas_tidur);
+        $request->session()->put('pola_makan', $this->pola_makan);
+        $request->session()->put('rutinitas_olahraga', $this->rutinitas_olahraga);
+        
+        //insert data from input user to table alternatif nilai
         $total = 0;
         for ($i = 0; $i < count($request->questions); $i++) {
             $total += $request->nilai[$i];
@@ -44,28 +69,136 @@ class BaseController extends Controller
             $answers[] = [
                 'user_id' => $user->id,
                 'kriteria_id' => $request->questions[$i],
-                'nilai_kriteria_id' => $request->answers[$i+1]
+                'kriteria_nilai_id' => $request->answers[$i+1]
             ];
         }
-    
-        AlternatifNilai::insert($answers);
+        //insert data kedalam tabel alternatif nilai
+        NewAlternatifNilai::insert($answers);
+
+        //calculate bai score dengan memanggil fungsi calculateBAIScore
+        $bai_cal = $this->calculateBAIScore($user->id);
+
+        // insert score bai kedalam tabel score bai
+        $bai = new ScoreBAI();
+        $bai->user_id = $user->id;
+        $bai->bai_lvl_code = $bai_cal["level_bai"];
+        $bai->total_score = $bai_cal["total_bai"];
+        $bai->save();
+
+        //insert data kedalam tabel matriks_prenorm
+        $pre_norm = new MatriksPreNorm();
+        $pre_norm->user_id = $user->id;
+        foreach($bai_cal['data_prenorm'] as $index=>$val_prenorm){
+            $pre_norm->$index = $val_prenorm;
+        }
+        $pre_norm->save();
+
+        //calculate saw score dengan memanggil fungsi calculateSaw
+        $saw_cal = $this->calculateSaw($user->id);
+        
+        //insert data kedalam tabel matriks_postnorm
+        $post_norm = new MatriksPostNorm();
+        $post_norm->user_id = $user->id;
+        foreach($saw_cal['arr_postnorm'] as $index=>$val_postnorm){
+            $post_norm->$index = $val_postnorm;
+        }
+        $post_norm->save();
+        
+        //insert data hasil perhitungan saw kedalam tabel hasil saw
+        $hasil_saw = new NilaiSaw();
+        $hasil_saw->user_id = $user->id;
+        $hasil_saw->saw_a1 = $saw_cal['sum_saw_a1'];
+        $hasil_saw->saw_a2 = $saw_cal['sum_saw_a2'];
+        $hasil_saw->saw_a3 = $saw_cal['sum_saw_a3'];
+        $hasil_saw->saw_a4 = $saw_cal['sum_saw_a4'];
+        $hasil_saw->save();
 
         return redirect()->route('result', $id)
         ->with('success','Result successfully');
     }
 
-
-    public function result($id) {
+    public function calculateBAIScore($id){
         $user_id = $id;
-        
-        $score = AlternatifNilai::with(['user','kriteriaNilai'])->where('user_id',$user_id)->get();
-        return view('user.result', ['score' => $score, 'user_id' => $user_id]);
+         
+        //get data alternatif nilai for the user
+        $data = NewAlternatifNilai::with(['user','kriteriaNilai'])->where('user_id',$user_id)->get();
+        #score BAI
+
+        //get nilai gejala and count the total score BAI for the user
+        $total_BAI = 0;
+        // $insert_val = array();
+        foreach ($data as $index=>$d) {
+            $nilai_gejala = NilaiGejala::where('id', $d->kriteria_nilai_id)->value('nilai_gejala');
+            // untuk menghitung total BAI score dari jawaban responden
+            $total_BAI += $nilai_gejala;
+            // menyimpan nilai dari jawaban responden kedalam array untuk disimpan ke table matriks_prenorm
+            $insert_val['c'.$index+1] = $nilai_gejala;
+        }
+
+        // merge array untuk disimpan kedalam table matriks_prenorm
+        // $test_id['user_id'] = $id;
+        // $data_prenorm = array_merge($insert_val);
+
+        //define the result of the BAI scores for the user
+        if($total_BAI >= 0 && $total_BAI <= 21){
+            $level_bai = "low";
+        }elseif($total_BAI >= 22 && $total_BAI <= 35){
+            $level_bai = "med";
+        }elseif($total_BAI >= 36 && $total_BAI <= 63){
+            $level_bai = "high";
+        }
+
+        return array('total_bai' => $total_BAI, 'level_bai' => $level_bai, 'data_prenorm' => $insert_val);
     }
 
 
-    public function calculateSaw($data){
-        $input =  $data;
+    public function result($id, Request $request) {
+        $user_id = $id;
 
+        $hasil_bai = ScoreBAI::select('score_bai.total_score', 'level_hasil_bai.level_bai', 'level_hasil_bai.detail_bai')
+                    ->where('user_id', $id)
+                    ->join('level_hasil_bai', 'score_bai.bai_lvl_code', 'level_hasil_bai.code_bai')
+                    ->first();
+        
+        $hasil_saw = NilaiSaw::where('user_id', $user_id)->first();
+        $saw_val = array(
+            "Subjective" => array("value" => $hasil_saw->saw_a1, "text" => "This is the subjective text"),
+            "Neurophysiology" => array("value" => $hasil_saw->saw_a2, "text" => "This is the neurophysiology text"),
+            "Autonomic" => array("value" => $hasil_saw->saw_a3, "text" => "This is the autonomic text"),
+            "Panic Related" => array("value" => $hasil_saw->saw_a4, "text" => "This is the panic-related text")
+        );
+        
+         $max_value = max($saw_val); // Get the maximum value
+         $best_saw = array(); // Initialize an empty array to store the arrays with the maximum value
+        
+        if ($max_value > 0 ) {
+            foreach ($saw_val as $key => $value) {
+                if ($value == $max_value) {
+                    $best_saw[$key] = $value; // Add the key-value pair to the $best_saw array if the value matches the maximum value
+                }
+            }
+    
+            $empty_saw = false;
+        }else{
+            $empty_saw = true;
+        }
+
+        // $kualitasTidur = $request->session()->get('kualitas_tidur');
+        $kualitas_tidur = $request->session()->get('kualitas_tidur');
+        $pola_makan = $request->session()->get('pola_makan');
+        $rutinitas_olahraga = $request->session()->get('rutinitas_olahraga');
+        $faktor_lain = array(
+            "kualitas_tidur" => $kualitas_tidur,
+            "pola_makan" => $pola_makan,
+            "rutinitas_olahraga" => $rutinitas_olahraga
+        );
+     
+        // dd($best_saw);
+
+        return view('user.result', [ 'user_id' => $user_id, 'hasil_bai' => $hasil_bai, 'saw_val' => $saw_val, 'best_saw' => $best_saw, 'empty_saw' => $empty_saw, 'faktor_lain' => $faktor_lain, 'max_value' => $max_value]);
+    }
+
+    public function calculateSaw($id){
         #array nilai kriteria setiap alternatif sebelum normalisasi
         $matrix1 = [];
         $matrix2 = [];
@@ -82,152 +215,134 @@ class BaseController extends Controller
         $saw_a3 = [];
         $saw_a4 = [];
 
-        #score BAI
-        $total_BAI = 0;
-        foreach ($input as $score) {
-            $total_BAI += $score->kriteriaNilai->kn_nilai;
-        }
-        if($total_BAI >= 0 && $total_BAI <= 21){
-            $detail_BAI = "Tingkat Kecemasan Rendah (Low Anxiety)";
-        }elseif($total_BAI >= 22 && $total_BAI <= 35){
-            $detail_BAI = "Tingkat Kecemasan Sedang (Moderate Anxiety)";
-        }elseif($total_BAI >= 36 && $total_BAI <= 63){
-            $detail_BAI = "Tingkat Kecemasan Berat (Severe Anxiety)";
+        $user_id =  $id;
+
+        $data = NewAlternatifNilai::with(['user', 'kriteria','kriteriaNilai'])->where('user_id',$user_id)->get();
+        $arr_prenorm = MatriksPreNorm::where('user_id',  $user_id)->first()->toArray();
+
+        $bobot_pref = array();
+        //get bobot preferensi
+        foreach($data as $index => $d){
+            $bobot_pref[$index] = BobotGejala::where('id', $d->kriteria->kriteria_bobot_id)->value('bobot');
         }
 
-        #mengubah set data kedalam matrix per alternatif
-        foreach ($input as $index => $a) {
-            switch ($a) {
-                case ($a->kriteria->alternatif_id == 1):
-                    $matrix1[] = $a->kriteriaNilai->kn_nilai;
-                    $max_a1 = max($matrix1);
-                    $bobot_a1 = $a->kriteria->kriteria_bobot;
-                    break;
-                case ($a->kriteria->alternatif_id == 2):
-                    $matrix2[] = $a->kriteriaNilai->kn_nilai;
-                    $max_a2 = max($matrix2);
-                    $bobot_a2 = $a->kriteria->kriteria_bobot;
-                    break;
-                case ($a->kriteria->alternatif_id == 3):
-                    $matrix3[] = $a->kriteriaNilai->kn_nilai;
-                    $max_a3 = max($matrix3);
-                    $bobot_a3 = $a->kriteria->kriteria_bobot;
-                    break;
-                case ($a->kriteria->alternatif_id == 4):
-                    $matrix4[] = $a->kriteriaNilai->kn_nilai;
-                    $max_a4 = max($matrix4);
-                    $bobot_a4 = $a->kriteria->kriteria_bobot;
-                    break;
-                default:
-                    break;
+        //membentuk matriks per alternatif untuk di normalisasi
+        for ($i = 0; $i < count($bobot_pref); $i++) {
+            if ($i >= 0 && $i < 6) {
+                $kn_nilai_a1 = $arr_prenorm['c'.$i+1];
+                $bobot_a1 = $bobot_pref[$i];
+                $matrix1[] = 
+                [
+                   'Kriteria' => 'c'.$i+1,
+                   'Nilai gejala' => $kn_nilai_a1,
+                   'Bobot preferensi' => $bobot_a1
+                ];
+                $max_a1 = max(array_column($matrix1, 'Nilai gejala'));
+            }elseif($i >= 6 && $i < 13){
+                $kn_nilai_a2 = $arr_prenorm['c'.$i+1];
+                $bobot_a2 = $bobot_pref[$i];
+                $matrix2[] = 
+                [
+                   'Kriteria' => 'c'.$i+1,
+                   'Nilai gejala' => $kn_nilai_a2,
+                   'Bobot preferensi' => $bobot_a2
+                ];
+                $max_a2 = max(array_column($matrix2, 'Nilai gejala'));
+            }elseif($i >= 13 && $i < 17){
+                $kn_nilai_a3 = $arr_prenorm['c'.$i+1];
+                $bobot_a3 = $bobot_pref[$i];
+                $matrix3[] = 
+                [
+                   'Kriteria' => 'c'.$i+1,
+                   'Nilai gejala' => $kn_nilai_a3,
+                   'Bobot preferensi' => $bobot_a3
+                ];
+                $max_a3 = max(array_column($matrix3, 'Nilai gejala'));
+            }elseif($i >= 17 && $i <= 20){
+                $kn_nilai_a4 = $arr_prenorm['c'.$i+1];
+                $bobot_a4 = $bobot_pref[$i];
+                $matrix4[] = 
+                [
+                   'Kriteria' => 'c'.$i+1,
+                   'Nilai gejala' => $kn_nilai_a4,
+                   'Bobot preferensi' => $bobot_a4
+                ];
+                $max_a4 = max(array_column($matrix4, 'Nilai gejala'));
             }
         }
 
-        #melakukan normalisasi pada matrix yg terbentuk sebelumnya
+        //melakukan normalisasi pada matrix yg terbentuk sebelumnya
         foreach ($matrix1 as $mx_1) {  
             if($max_a1 > 0){
-                $matrix_n1 = number_format($mx_1/$max_a1, 2, '.', ',');
-                $saw_a1[] = number_format($matrix_n1*$bobot_a1, 2, '.', ',');
-                $arr_n1[] = $matrix_n1; 
+                $matrix_n1 = number_format($mx_1['Nilai gejala']/$max_a1, 2, '.', ',');
+                $saw_a1[] = number_format($matrix_n1*$mx_1['Bobot preferensi'], 2, '.', ',');
+                $arr_n1[$mx_1['Kriteria']] = $matrix_n1; 
+            }else{
+                $saw_a1[] = number_format(0, 2, '.', ',');
+                $arr_n1[$mx_1['Kriteria']] = number_format(0, 2, '.', ',');
             }
         }
         foreach ($matrix2 as $mx_2) {  
             if($max_a2 > 0){
-                $matrix_n2 = number_format($mx_2/$max_a2, 2, '.', ',');
-                $saw_a2[] = number_format($matrix_n2*$bobot_a2, 2, '.', ',');
-                $arr_n2[] = $matrix_n2; 
+                $matrix_n2 = number_format($mx_2['Nilai gejala']/$max_a2, 2, '.', ',');
+                $saw_a2[] = number_format($matrix_n2*$mx_2['Bobot preferensi'], 2, '.', ',');
+                $arr_n2[$mx_2['Kriteria']] = $matrix_n2; 
+            }else{
+                $saw_a2[] = number_format(0, 2, '.', ',');
+                $arr_n2[$mx_2['Kriteria']] = number_format(0, 2, '.', ',');
             }
         }
         foreach ($matrix3 as $mx_3) { 
             if($max_a3 > 0){
-                $matrix_n3 = number_format($mx_3/$max_a3, 2, '.', ',');
-                $saw_a3[] = number_format($matrix_n3*$bobot_a3, 2, '.', ',');
-                $arr_n3[] = $matrix_n3; 
+                $matrix_n3 = number_format($mx_3['Nilai gejala']/$max_a3, 2, '.', ',');
+                $saw_a3[] = number_format($matrix_n3*$mx_3['Bobot preferensi'], 2, '.', ',');
+                $arr_n3[$mx_3['Kriteria']] = $matrix_n3; 
+            }else{
+                $saw_a3[] = number_format(0, 2, '.', ',');
+                $arr_n3[$mx_3['Kriteria']] = number_format(0, 2, '.', ',');
             }
         }
         foreach ($matrix4 as $mx_4) {  
             if($max_a4 > 0){
-                $matrix_n4 = number_format($mx_4/$max_a4, 2, '.', ',');
-                $saw_a4[] = number_format($matrix_n4*$bobot_a4, 2, '.', ',');
-                $arr_n4[] = $matrix_n4; 
+                $matrix_n4 = number_format($mx_4['Nilai gejala']/$max_a4, 2, '.', ',');
+                $saw_a4[] = number_format($matrix_n4*$mx_4['Bobot preferensi'], 2, '.', ',');
+                $arr_n4[$mx_4['Kriteria']] = $matrix_n4; 
+            }else{
+                $saw_a4[] = number_format(0, 2, '.', ',');
+                $arr_n4[$mx_4['Kriteria']] = number_format(0, 2, '.', ',');
             }
         }
-
+        //merge matriks normalisasi kedalam satu array untuk keperluan insert data ke tabel matriks_postnorm
+        $arr_postnorm = array_merge($arr_n1, $arr_n2, $arr_n3, $arr_n4);
+    
         #menjumlahkan perhitungan preferensi (V) dari tiap Aspek
-        $sum_saw1 = number_format(array_sum($saw_a1), 2, '.', ',');
-        $sum_saw2 = number_format(array_sum($saw_a2), 2, '.', ',');
-        $sum_saw3 = number_format(array_sum($saw_a3), 2, '.', ',');
-        $sum_saw4 = number_format(array_sum($saw_a4), 2, '.', ',');
+        $sum_saw_a1 = number_format(array_sum($saw_a1), 2, '.', ',');
+        $sum_saw_a2 = number_format(array_sum($saw_a2), 2, '.', ',');
+        $sum_saw_a3 = number_format(array_sum($saw_a3), 2, '.', ',');
+        $sum_saw_a4 = number_format(array_sum($saw_a4), 2, '.', ',');
 
         #menentukan hasil saw terbaik
-
         $saw_total = array(
-            "Subjective" => $sum_saw1,
-            "Neurophysiology" => $sum_saw2,
-            "Autonomic" => $sum_saw3,
-            "Panic Related" => $sum_saw4
-            // array('saw' => $sum_saw1, 'aspek' => "Subjective"),
-            // array('saw' => $sum_saw2, 'aspek' => "Neurophysiology"),
-            // array('saw' => $sum_saw3, 'aspek' => "Autonomic"),
-            // array('saw' => $sum_saw4, 'aspek' => "Panic Related")
+            "Subjective" => $sum_saw_a1,
+            "Neurophysiology" => $sum_saw_a2,
+            "Autonomic" => $sum_saw_a3,
+            "Panic Related" => $sum_saw_a4
          );
          
         $best_saw = max($saw_total);
         $detail_saw = array_keys($saw_total, $best_saw);
 
-        // if ($best_saw = 'a1'){
-        //     $detail_saw = "Subjective";
-        // }elseif($best_saw = 'a2'){
-        //     $detail_saw = "Neurophysiology";
-        // }elseif($best_saw = 'a3'){
-        //     $detail_saw = "Autonomic";
-        // }elseif($best_saw = 'a4'){
-        //     $detail_saw = "Panic Related";
-        // }
-
         $params = array(
-            "matrix1" => $matrix1,
-            "matrix2" => $matrix2,
-            "matrix3" => $matrix3,
-            "matrix4" => $matrix4,
-            "arr_n1" => $arr_n1,
-            "arr_n2" => $arr_n2,
-            "arr_n3" => $arr_n3,
-            "arr_n4" => $arr_n4,
-            "saw_a1" => $sum_saw1,
-            "saw_a2" => $sum_saw2,
-            "saw_a3" => $sum_saw3,
-            "saw_a4" => $sum_saw4,
-            "detail_BAI" => $detail_BAI,
-            "total_BAI" => $total_BAI,
+            "arr_postnorm" => $arr_postnorm,
+            "sum_saw_a1" => $sum_saw_a1,
+            "sum_saw_a2" => $sum_saw_a2,
+            "sum_saw_a3" => $sum_saw_a3,
+            "sum_saw_a4" => $sum_saw_a4,
             "best_saw" => $best_saw,
             "detail_saw" => $detail_saw,
             "saw_total" => $saw_total
         ); 
 
         return $params;
-    }
-
-    public function detail($id){
-        $user = $id;
-
-        $an = AlternatifNilai::with(['user','kriteriaNilai','kriteria'])->where('user_id',$user)->get();
-        $user = AlternatifNilai::with(['user','kriteriaNilai','kriteria'])->where('user_id',$user)->first();
-        $saw = $this->calculateSaw($an);       
-        // $alternatif1 = AlternatifNilai::with(['user','kriteriaNilai','kriteria'])->where('user_id',$user)
-        // ->whereHas('kriteria', function ($query){
-        //     $query->where('alternatif_id','1');
-        // })->get();
-        // $alternatif2 = AlternatifNilai::with(['user','kriteriaNilai','kriteria'])->where('user_id',$user)
-        // ->whereHas('kriteria', function ($query){
-        //     $query->where('alternatif_id','2');
-        // })->get();
-        // $param = array(
-        //     "an" => $an,
-        //     "alternatif1" => $alternatif1,
-        //     "alternatif2" => $alternatif2
-        // );
-        
-    	 return view('user.saw', ['an' => $an, 'user' => $user,'saw' => $saw]);
     }
 }

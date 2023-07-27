@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\KriteriaController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,8 +29,11 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth']], function(){
     Route::resource('kriteria', 'Admin\KriteriaController');
     Route::resource('kriteria-nilai', 'Admin\KriteriaNilaiController');
     Route::resource('alternatif', 'Admin\AlternatifController');
-    Route::resource('alternatif-nilai', 'Admin\AlternatifNilaiController');
+    Route::resource('bobot-preferensi', 'Admin\BobotController');
+    Route::resource('atribut-kriteria', 'Admin\AtributKriteriaController');
+    Route::resource('bai-konten', 'Admin\BaiKontenController');
     Route::resource('perhitungan', 'Admin\PerhitunganController');
+    Route::put('kriteria/update-kriteria/{id}', 'Admin\KriteriaController@update')->name('kriteria.update');
     Route::get('perhitungan/detail/{user_id}', 'Admin\PerhitunganController@detail')->name('perhitungan.detail');
     Route::get('perhitungan/pdf/{user_id}', 'Admin\PerhitunganController@pdf')->name('perhitungan.pdf');
 });

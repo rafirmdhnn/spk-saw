@@ -16,7 +16,7 @@
                   <h6 class="mb-0">Nama</h6>
                 </div>
                 <div class="col-sm-9 text-secondary">
-                      {{ $user->user->name }}
+                      {{ $desc_hasil['Nama'] }}
                 </div>
               </div>
               <hr>
@@ -25,7 +25,7 @@
                   <h6 class="mb-0">Email</h6>
                 </div>
                 <div class="col-sm-9 text-secondary">
-                  {{ $user->user->email }}
+                  {{ $desc_hasil['Email'] }}
                 </div>
               </div>
               <hr>
@@ -34,7 +34,7 @@
                   <h6 class="mb-0">Hasil BAI</h6>
                 </div>
                 <div class="col-sm-9 text-secondary">
-                  {{ $saw['total_BAI'] }} -- <span class="badge badge-primary">{{ $saw['detail_BAI'] }}</span>
+                  {{ $desc_hasil['Hasil Bai'] }} -- <span class="badge badge-primary">{{ $desc_hasil['Level Bai'] }}</span>
                 </div>
               </div>
               <hr>
@@ -43,10 +43,12 @@
                   <h6 class="mb-0">Hasil SAW</h6>
                 </div>
                 <div class="col-sm-9 text-secondary">
-                    {{ $saw['best_saw'] }} --  
-                    @foreach ($saw['detail_saw'] as $ds)
-                        <span class="badge badge-primary">{{ $ds }}</span>
-                    @endforeach
+                    {{ $desc_hasil['Max SAW'] }} --  
+                    @if( $desc_hasil['empty_saw'] == true )
+                        <span class="badge badge-primary">Tidak ada gejala</span>
+                    @else
+                        <span class="badge badge-primary">{{ implode(', ', array_keys($desc_hasil['Best SAW'])) }}</span>
+                    @endif
                 </div>
               </div>
               <hr>
@@ -55,10 +57,10 @@
                   <h6 class="mb-0">Tanggal Test</h6>
                 </div>
                 <div class="col-sm-9 text-secondary">
-                  {{ $user->created_at }}
+                  {{ $desc_hasil['Tanggal'] }}
                 </div>
               </div>
-              <hr>
+              {{-- <hr>
               <div class="row">
                 <div class="col-sm-3">
                   <h6 class="mb-0">File PDF</h6>
@@ -66,7 +68,7 @@
                 <div class="col-sm-9 text-secondary">
                   <a href="perhitungan/pdf/{{ $user->id }}"><span class="badge badge-primary">download pdf</span></a>
                 </div>
-              </div>
+              </div> --}}
             </div>
         </div>
         <!--end::Card Detail User-->
@@ -79,18 +81,20 @@
               <thead>
                 <tr>
                   <th scope="col">No</th>
+                  <th scope="col">Kriteria</th>
                   <th scope="col">Alternatif</th>
                   <th scope="col">Nilai Kriteria</th>
                   <th scope="col">Keterangan Kriteria</th>
                 </tr>
               </thead>
               <tbody>
-                  @foreach ($an as $index => $a)
+                  @foreach ($arr_alternatif as $index => $aa)
                   <tr>
                       <th scope="row">{{ $index + 1 }}</th>
-                      <td>{{ $a->kriteria->alternatif_id }}</td>
-                      <td>{{ $a->kriteriaNilai->kn_nilai }}</td>
-                      <td>{{ $a->kriteriaNilai->kn_keterangan }}</td>
+                      <td>{{ $aa['Kriteria'] }}</td>
+                      <td>{{ $aa['Alternatif'] }}</td>
+                      <td>{{ $aa['Nilai Gejala'] }}</td>
+                      <td>{{ $aa['Keterangan Gejala'] }}</td>
                     </tr>
                   @endforeach
               </tbody>
@@ -122,7 +126,7 @@
                 <tbody>
                     <tr>
                       <th scope="col">Nilai Rating</th>
-                        @foreach ($saw['matrix1'] as $mx1)
+                        @foreach ($arr_prn_a1 as $mx1)
                             <td class="text-center">{{ $mx1 }}</td>
                         @endforeach
                     </tr>
@@ -147,7 +151,7 @@
                 <tbody>
                     <tr>
                         <th scope="col">Nilai Rating</th>
-                        @foreach ($saw['matrix2'] as $mx2)
+                        @foreach ($arr_prn_a2 as $mx2)
                         <td class="text-center">{{ $mx2 }}</td>
                         @endforeach
                     </tr>
@@ -169,7 +173,7 @@
                 <tbody>
                     <tr>
                         <th scope="col">Nilai Rating</th>
-                        @foreach ($saw['matrix3'] as $mx3)
+                        @foreach ($arr_prn_a3 as $mx3)
                             <td class="text-center">{{ $mx3 }}</td>
                         @endforeach
                     </tr>
@@ -191,7 +195,7 @@
                 <tbody>
                     <tr>
                         <th scope="col">Nilai Rating</th>
-                        @foreach ($saw['matrix4'] as $mx4)
+                        @foreach ($arr_prn_a4 as $mx4)
                             <td class="text-center">{{ $mx4 }}</td>
                         @endforeach
                     </tr>
@@ -224,7 +228,7 @@
                 <tbody>
                     <tr>
                         <th scope="col">Nilai Rating</th>
-                        @foreach ($saw['arr_n1'] as $mx_n1)
+                        @foreach ($arr_psn_a1 as $mx_n1)
                         <td class="text-center">{{ $mx_n1 }}</td>
                         @endforeach
                     </tr>
@@ -249,7 +253,7 @@
                 <tbody>
                   <tr>
                         <th scope="col">Nilai Rating</th>
-                        @foreach ($saw['arr_n2'] as $mx_n2)
+                        @foreach ($arr_psn_a2 as $mx_n2)
                         <td class="text-center">{{ $mx_n2 }}</td>
                         @endforeach
                     </tr>
@@ -271,7 +275,7 @@
                 <tbody>
                     <tr>
                         <th scope="col">Nilai Rating</th>
-                        @foreach ($saw['arr_n3'] as $mx_n3)
+                        @foreach ($arr_psn_a3 as $mx_n3)
                             <td class="text-center">{{ $mx_n3 }}</td>
                         @endforeach
                       </tr>
@@ -293,9 +297,9 @@
                 <tbody>
                   <tr>
                         <th scope="col">Nilai Rating</th>
-                        @foreach ($saw['arr_n4'] as $mx_n4)
+                        @foreach ($arr_psn_a4 as $mx_n4)
                             <td class="text-center">{{ $mx_n4 }}</td>
-                            @endforeach
+                        @endforeach
                     </tr>
                 </tbody>
             </table>
@@ -318,19 +322,19 @@
                 <tbody>
                     <tr>
                         <th>Aspek Subjective</th>
-                        <td>{{ $saw['saw_a1'] }}</td>
+                        <td>{{ $saw_val['Subjective'] }}</td>
                     </tr>
                     <tr>
                         <th>Aspek Neurophysiology</th>
-                        <td>{{ $saw['saw_a2'] }}</td>
+                        <td>{{ $saw_val['Neurophysiology'] }}</td>
                     </tr>
                     <tr>
                       <th>Aspek Autonomic</th>
-                        <td>{{ $saw['saw_a3'] }}</td>
+                        <td>{{ $saw_val['Autonomic'] }}</td>
                     </tr>
                     <tr>
                         <th>Aspek Panic Related</th>
-                        <td>{{ $saw['saw_a4'] }}</td>
+                        <td>{{ $saw_val['Panic Related'] }}</td>
                     </tr>
                   </tbody>
               </table>

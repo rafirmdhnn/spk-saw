@@ -27,12 +27,12 @@ class AuthServiceProvider extends ServiceProvider
 
         $user = \Auth::user();
 
-        Gate::define('admin_access', function ($user) {
-            return in_array($user->is_role, [1]);
-        });
+        // Gate::define('admin_access', function ($user) {
+        //     return in_array($user->is_role, [1]);
+        // });
 
-        Gate::define('user_access', function ($user) {
-            return in_array($user->is_role, [2]);
-        });
+        // Gate::define('user_access', function ($user) {
+        //     return in_array($user->is_role, [2]);
+        // });
     }
 }

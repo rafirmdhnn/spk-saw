@@ -17,14 +17,14 @@
                     <h3 class="card-label">Daftar Alternatif</h3>
                 </div>
                 <div class="card-toolbar">
-                    @if(Auth::user()->is_role == 1)
+                    {{-- @if(Auth::user()->is_role == 1) --}}
                     <!--begin::Button-->
                     {{-- <a href="{{route('alternatif.create')}}" class="btn btn-primary font-weight-bolder">
                     <span class="svg-icon svg-icon-md">
                         <span class="fa fa-plus"></span>
                     </span>Tambah</a> --}}
                     <!--end::Button-->
-                    @endif
+                    {{-- @endif --}}
                 </div>
             </div>
             <div class="card-body">
@@ -45,7 +45,7 @@
                         <th>No.</th>
                         <th>Kode</th>
                         <th>Nama</th>
-                        {{-- <th width="170px">Aksi</th> --}}
+                        <th width="170px">Aksi</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -55,6 +55,40 @@
             </div>
         </div>
         <!--end::Card-->
+
+        {{-- Modal for Edit Data --}}
+        <div class="modal fade" id="edit_alternatif" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="edit_alternatif_title">Edit Alternatif</h5>
+                    </div>
+
+                    <ul class="mx-5 mt-2 mb-0" id="updateform_errlist"></ul>
+
+                    <div class="modal-body">
+                        {{-- <form method="POST" action=""> --}}
+                            <div class="form-group">
+                                <input type="hidden" id="alternatif_id">
+                            </div>
+                            <div class="form-group">
+                                <label for="alternatif_kode">Kode Alternatif</label>
+                                <input class="form-control" id="edit_alternatif_kode">
+                            </div>
+                            <div class="form-group">
+                                <label for="alternatif_nama">Nama Alternatif</label>
+                                <input class="form-control" id="edit_alternatif_nama">
+                            </div>
+                            {{-- </form> --}}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-primary update_alternatif">Simpan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- end::Modal --}}
     </div>
     <!--end::Container-->
 </div>
@@ -115,35 +149,93 @@
                             data: 'alternatif_nama',
                             name: 'alternatif_nama'
                         },
-                        // {
-                        //     data: 'action',
-                        //     name: 'action',
-                        //     orderable: false,
-                        //     searchable: false
-                        // }
+                        {
+                            data: 'action',
+                            name: 'action',
+                            orderable: false,
+                            searchable: false
+                        }
                     ]
                 });
+            });
+            //JQuery to call Edit Modal
+            $(document).on('click', '.edit_alternatif', function (e) {
+                e.preventDefault();
+    
+                var alternatif_id = $(this).val();
+                // console.log(kriteria_id);
+                var url = "{{ route('alternatif.edit', ':alternatif_id') }}";
+                url = url.replace(':alternatif_id', alternatif_id);
 
-                $('body').on('click', '.btnDelete', function (e) {
-                    e.preventDefault();
-                    var form = $(this).parent();
-                    Swal.fire({
-                        title: "Anda Yakin?",
-                        text: "Ingin hapus data Alternatif ?",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonText: "Hapus",
-                        cancelButtonText: "Batal",
-                        reverseButtons: true,
-                        confirmButtonColor: '#d33',
-                    }).then(function (result) {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        } else if (result.dismiss === "cancel") {
-
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    success: function (response) {
+                        if(response.status == 404) {
+                            $('#success_message').html("");
+                            $('#success_message').addClass('alert alert-danger');
+                            $('#success_message').text(response.message);
+                        }else{
+                            $('#edit_alternatif_kode').val(response.alternatif.alternatif_kode);
+                            $('#edit_alternatif_nama').val(response.alternatif.alternatif_nama);
+                            $('#alternatif_id').val(alternatif_id);
                         }
-                    });
+                    }
                 });
+            });
+            //JQuery to update the data
+            $(document).on('click', '.update_alternatif', function(e){
+                e.preventDefault();
+                var alternatif_id = $('#alternatif_id').val();
+                $(this).text("Menyimpan");
+                // get each input from modal edit kriteria
+                var data = {
+                    'alternatif_kode': $('#edit_alternatif_kode').val(),
+                    'alternatif_nama': $('#edit_alternatif_nama').val()
+                }
+
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                
+                // set the update url
+                var url = "{{ route('alternatif.update', ':alternatif_id') }}";
+                url = url.replace(':alternatif_id', alternatif_id);
+
+                
+                $.ajax({
+                    type: "PUT",
+                    url: url,
+                    data: data,
+                    dataType: "json",
+                    success: function(response){
+                        console.log(response);
+                        if(response.status == 400){
+                            $('#updateform_errlist').html("");
+                            $('#updateform_errlist').addClass('alert alert-danger');
+                            $.each(response.errors, function (key, err_values) {
+                                $('#updateform_errlist').append('<li>'+err_values+'</li>')
+                            })
+                            $('.update_alternatif').text("Simpan");
+                        }else{
+                            $('#updateform_errlist').html("");
+                            $('#updateform_errlist').hide();
+                            
+                            Swal.fire({
+                                position:'center',
+                                icon:'success',
+                                title: response.message,
+                                timer: 2500,
+                                showConfirmButton: false
+                                }).then((result) => {
+                                    $('.update_alternatif').text("Simpan");
+                                    location.reload();
+                                });
+                        }
+                    }
+                })
             });
         })
 
