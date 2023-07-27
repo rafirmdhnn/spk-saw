@@ -15,9 +15,34 @@
                     Berdasarkan analisa hasil anda, tidak ada gejala ataupun gangguan kecemasan yang anda alami
                     @else
                     Berdasarkan analisa hasil anda, jenis gejala dari gangguan kecemasan yang paling dominan anda rasakan adalah aspek gejala 
-                        <b>{{ implode(', ', array_keys($best_saw)) }}</b>
-                    @endif
-                    . Untuk diagnosa lebih mendalam silahkan anda mendatangi dokter/psikolog.
+                        @foreach ($best_saw as $key => $value)
+                            @if (isset($saw_val[$key]['text']))
+                                    <b>{{ $key }}</b> {{ $saw_val[$key]['text'] }}.
+                            @endif
+                        @endforeach
+                    @endif 
+                    @php
+                        $faktor_lain_arr = [
+                            'kualitas_tidur' => 'kualitas tidur',
+                            'pola_makan' => 'kualitas asupan',
+                            'rutinitas_olahraga' => 'berolahraga'
+                        ];
+                    
+                        $selected_factors = [];
+                    
+                        foreach ($faktor_lain_arr as $factor_key => $factor_text) {
+                            if ($faktor_lain[$factor_key] == 'kurang') {
+                                $selected_factors[] = $factor_text;
+                            }
+                        }
+                    
+                        $message = implode(' & ', $selected_factors);
+                    @endphp
+
+                    @if (!empty($message))
+                        Kurangnya {{ $message }} sangat memungkinkan untuk memicu gangguan kecemasan yang Anda rasakan karena berdampak pada kondisi tubuh Anda.
+                    @endif 
+                    Untuk diagnosa lebih mendalam silahkan anda mendatangi dokter/psikolog.
                 </p>
                 <h5 class="mt-4">Berikut hasil perhitungan aspek gejala menggunakan metode Simple Additive Weighting (SAW)</h5>
                 {{-- Begin: Table for SAW Result --}}
@@ -29,42 +54,12 @@
                         </tr>
                       </thead>
                     <tbody>
-                        <tr>
-                            @if (( $saw_val['Subjective'] > $saw_val['Panic Related']) && ( $saw_val['Subjective'] > $saw_val['Autonomic']) && ( $saw_val['Subjective'] >  $saw_val['Neurophysiology']))
-                                <td class="text-success font-weight-bold">Aspek Subjective</td>
-                                <td class="text-success font-weight-bold"> {{ $saw_val['Subjective'] }}</td>
-                            @else
-                                <td>Aspek Subjective</td>
-                                <td> {{ $saw_val['Subjective'] }}</td>
-                            @endif
-                        </tr>
-                        <tr>
-                            @if (( $saw_val['Neurophysiology'] >  $saw_val['Panic Related']) && ( $saw_val['Neurophysiology'] > $saw_val['Subjective']) && ( $saw_val['Neurophysiology'] >  $saw_val['Autonomic']))
-                            <td class="text-success font-weight-bold">Aspek Neurophysiology</td>
-                            <td class="text-success font-weight-bold"> {{ $saw_val['Neurophysiology'] }}</td>
-                            @else
-                                <td>Aspek Neurophysiology</td>
-                                <td> {{ $saw_val['Neurophysiology'] }}</td>
-                            @endif
-                        </tr>
-                        <tr>
-                            @if (( $saw_val['Autonomic'] >  $saw_val['Panic Related']) && ( $saw_val['Autonomic'] > $saw_val['Subjective']) && ( $saw_val['Autonomic'] >  $saw_val['Neurophysiology']))
-                                <td class="text-success font-weight-bold">Aspek Autonomic</td>
-                                <td class="text-success font-weight-bold"> {{ $saw_val['Autonomic'] }}</td>
-                            @else
-                                <td>Aspek Autonomic</td>
-                                <td> {{ $saw_val['Autonomic'] }}</td>
-                            @endif
-                        </tr>
-                        <tr>
-                            @if (( $saw_val['Panic Related'] >  $saw_val['Autonomic']) && ( $saw_val['Panic Related'] >  $saw_val['Subjective']) && ( $saw_val['Panic Related'] >  $saw_val['Neurophysiology']))
-                                <td class="text-success font-weight-bold">Aspek Panic Related</td>
-                                <td class="text-success font-weight-bold"> {{ $saw_val['Panic Related'] }}</td>
-                            @else
-                                <td>Aspek Panic Related</td>
-                                <td> {{ $saw_val['Panic Related'] }}</td>
-                            @endif
-                        </tr>
+                        @foreach ($saw_val as $key => $data)
+                            <tr>
+                                <td @if ($data['value'] == $max_value['value']) class="text-success font-weight-bold" @endif>{{ $key }}</td>
+                                <td @if ($data['value'] == $max_value['value']) class="text-success font-weight-bold" @endif>{{ $data['value'] }}</td>
+                            </tr>
+                        @endforeach
                       </tbody>
                 </table>
                 {{-- End: Table SAW Result --}}
@@ -75,4 +70,3 @@
         </div>
     </div>
 @endsection
-    

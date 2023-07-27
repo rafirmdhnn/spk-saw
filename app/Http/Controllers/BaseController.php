@@ -16,6 +16,12 @@ use Illuminate\Support\Facades\Http;
 
 class BaseController extends Controller
 {
+
+    // private $kualitas_tidur  = [];
+    private $kualitas_tidur = [];
+    private $pola_makan = [];
+    private $rutinitas_olahraga = [];
+
     public function index() {
         return view('user.home');
     }
@@ -32,7 +38,10 @@ class BaseController extends Controller
         $request->validate([
             'name'   => 'required',
             'umur'   => 'required',
-            'email'  => 'required|email|unique:user,email'
+            'email'  => 'required|email|unique:user,email',
+            'kualitas_tidur' => 'required',
+            'pola_makan' => 'required',
+            'rutinitas_olahraga' => 'required'
         ]);
 
         //insert data user
@@ -42,6 +51,15 @@ class BaseController extends Controller
         $user->email = $request->email;
         $user->save();
 
+        //insert data kualitas tidur, rutinitas olahraga, pola makan
+        $this->kualitas_tidur = $request->input('kualitas_tidur');
+        $this->pola_makan = $request->input('pola_makan');
+        $this->rutinitas_olahraga = $request->input('rutinitas_olahraga');
+
+        // Store the selected value in the session.
+        $request->session()->put('kualitas_tidur', $this->kualitas_tidur);
+        $request->session()->put('pola_makan', $this->pola_makan);
+        $request->session()->put('rutinitas_olahraga', $this->rutinitas_olahraga);
         
         //insert data from input user to table alternatif nilai
         $total = 0;
@@ -106,11 +124,6 @@ class BaseController extends Controller
         $data = NewAlternatifNilai::with(['user','kriteriaNilai'])->where('user_id',$user_id)->get();
         #score BAI
 
-        //get id of table nilai gejala
-        // foreach($data as $d){
-        //     $id_nilai[] = $d->kriteria_nilai_id;
-        // }
-
         //get nilai gejala and count the total score BAI for the user
         $total_BAI = 0;
         // $insert_val = array();
@@ -139,7 +152,7 @@ class BaseController extends Controller
     }
 
 
-    public function result($id) {
+    public function result($id, Request $request) {
         $user_id = $id;
 
         $hasil_bai = ScoreBAI::select('score_bai.total_score', 'level_hasil_bai.level_bai', 'level_hasil_bai.detail_bai')
@@ -149,11 +162,11 @@ class BaseController extends Controller
         
         $hasil_saw = NilaiSaw::where('user_id', $user_id)->first();
         $saw_val = array(
-            "Subjective" => $hasil_saw->saw_a1,
-            "Neurophysiology" => $hasil_saw->saw_a2,
-            "Autonomic" => $hasil_saw->saw_a3,
-            "Panic Related" => $hasil_saw->saw_a4
-         );
+            "Subjective" => array("value" => $hasil_saw->saw_a1, "text" => "This is the subjective text"),
+            "Neurophysiology" => array("value" => $hasil_saw->saw_a2, "text" => "This is the neurophysiology text"),
+            "Autonomic" => array("value" => $hasil_saw->saw_a3, "text" => "This is the autonomic text"),
+            "Panic Related" => array("value" => $hasil_saw->saw_a4, "text" => "This is the panic-related text")
+        );
         
          $max_value = max($saw_val); // Get the maximum value
          $best_saw = array(); // Initialize an empty array to store the arrays with the maximum value
@@ -165,16 +178,24 @@ class BaseController extends Controller
                 }
             }
     
-            // $max_saw = max($saw_val);
-            // $detail_saw = array_search($best_saw, $saw_val);
             $empty_saw = false;
         }else{
             $empty_saw = true;
         }
-     
-        // dd($empty_saw);
 
-        return view('user.result', [ 'user_id' => $user_id, 'hasil_bai' => $hasil_bai, 'saw_val' => $saw_val, 'best_saw' => $best_saw, 'empty_saw' => $empty_saw]);
+        // $kualitasTidur = $request->session()->get('kualitas_tidur');
+        $kualitas_tidur = $request->session()->get('kualitas_tidur');
+        $pola_makan = $request->session()->get('pola_makan');
+        $rutinitas_olahraga = $request->session()->get('rutinitas_olahraga');
+        $faktor_lain = array(
+            "kualitas_tidur" => $kualitas_tidur,
+            "pola_makan" => $pola_makan,
+            "rutinitas_olahraga" => $rutinitas_olahraga
+        );
+     
+        // dd($best_saw);
+
+        return view('user.result', [ 'user_id' => $user_id, 'hasil_bai' => $hasil_bai, 'saw_val' => $saw_val, 'best_saw' => $best_saw, 'empty_saw' => $empty_saw, 'faktor_lain' => $faktor_lain, 'max_value' => $max_value]);
     }
 
     public function calculateSaw($id){

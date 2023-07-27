@@ -63,50 +63,7 @@ class KriteriaNilaiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-        // menampilkan data kriteria di select option kriteria pada saat tambah kriteria nilai
-        $kriterias = Kriteria::select('id','kriteria_nama')->orderBy('id','ASC')->get();
-        // untuk memanggil file create nilai kriteria yang ada di dalam folder resources/view/admin/kriterianilai/create
-        return view('admin.kriterianilai.create', compact('kriterias'));
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        // fungsi untuk validasi jika kriteria_id, keterangan dan nilai kriteria kosong, jadi harus requried saat insert data
-        $request->validate([
-            'kriteria_id'   => 'required',
-            'kn_keterangan' => 'required',
-            'kn_nilai' => 'required'
-        ]);
-        // deklarasi nilai user_id dari construct
-        // $user_id = $this->user_id;
-        
-        // alur tambah data menggunakan eloquent, eloquent adalah model dari laravel
-        // memanggil kriteria nilai menggunakan new KriteriaNilai
-        $model = new KriteriaNilai;
-         // memanggil $_POST name kriteria_id
-        $model->kriteria_id  = $request->kriteria_id;
-         // memanggil $_POST name kn_keterangan
-        $model->kn_keterangan = $request->kn_keterangan;
-        // memanggil $_POST name kn_nilai
-        $model->kn_nilai = $request->kn_nilai;
-        // memanggil user_id dari auth user sehingga mendapatkan user_id user
-        // $model->user_id = $user_id;
-        // karena yg di insert atau tambah 3 field saja, maka sistem akan mengsave atau simpan
-        $model->save();
-        
-        // Jika berhasil tambah data nilai kriteria, akan redirect ke halaman kriteria-nilai.index,
-        // dan menampilkan pesan berhasil Nilai Kriteria  created successfully
-        return redirect()->route('kriteria-nilai.index')
-                        ->with('success','Nilai Kriteria created successfully');
-    }
 
     /**
      * Display the specified resource.

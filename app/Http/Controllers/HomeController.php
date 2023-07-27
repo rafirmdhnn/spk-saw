@@ -2,10 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\NewAlternatifNilai;
-use Illuminate\Http\Request;
-use App\Models\Surat;
-use DB;
 use App\Models\NewUser;
 use App\Models\NilaiSaw;
 

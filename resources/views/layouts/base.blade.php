@@ -67,7 +67,7 @@
         </div>
     </div>
     @yield('content')
-    <center>
+    {{-- <center>
         <div class="container mt-5">
             <div class="col-md-4">
                 <div class="wrapper-footer text-center text-uppercase text-white">
@@ -75,7 +75,7 @@
                 </div>
             </div>
         </div>
-    </center>
+    </center> --}}
 </body>
 </html>
 <!-- Optional JavaScript -->
